@@ -1,5 +1,5 @@
-import MathlibExtra.Tactics
-import MathlibExtra.FunctionUpdateITE
+import MathlibExtraLean.Tactics
+import MathlibExtraLean.FunctionUpdateITE
 
 
 set_option autoImplicit false
