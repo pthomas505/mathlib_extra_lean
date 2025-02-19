@@ -18,12 +18,14 @@ def Function.updateFromPairOfListsITE
   | x :: xs, y :: ys => Function.updateITE (Function.updateFromPairOfListsITE f xs ys) x y
   | _, _ => f
 
-#eval Function.updateFromPairOfListsITE (fun (n : ℕ) => n) [5, 10, 5] [10, 20, 30] 5
-#eval Function.updateFromPairOfListsITE (fun (n : ℕ) => n) [5, 10] [10] 5
-#eval Function.updateFromPairOfListsITE (fun (n : ℕ) => n) [10] [5, 10] 10
-#eval Function.updateFromPairOfListsITE (fun (n : ℕ) => n) [] [5, 10] 10
-#eval Function.updateFromPairOfListsITE (fun (n : ℕ) => n) [5, 10] [] 5
 
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [5, 10, 5] [10, 20, 30] 5
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [5, 10, 5] [10, 20, 30] 10
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [5, 10, 5] [10, 20, 30] 15
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [5, 10] [10] 5
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [10] [5, 10] 10
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [] [5, 10] 10
+#eval Function.updateFromPairOfListsITE (fun _ => 0) [5, 10] [] 5
 
 
 theorem Function.updateFromPairOfListsITE_comp
