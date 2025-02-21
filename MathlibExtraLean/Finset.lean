@@ -1,5 +1,4 @@
 import MathlibExtraLean.FunctionUpdateITE
-import Mathlib.Tactic
 
 
 set_option autoImplicit false
@@ -99,10 +98,13 @@ lemma Finset.diff_union_subset
   by
   have s1 : (A ∪ B) \ E = (A \ E) ∪ (B \ E)
   exact Finset.union_sdiff_distrib A B E
+
   trans (A \ E) ∪ (B \ E)
-  · simp only [s1]
+  · rewrite [s1]
     rfl
-  · exact Finset.union_subset_left_right (A \ E) (B \ E) C D h1 h2
+  · apply Finset.union_subset_left_right
+    · exact h1
+    · exact h2
 
 
 lemma Finset.union_right_comm_assoc
@@ -112,8 +114,9 @@ lemma Finset.union_right_comm_assoc
   (S T : Finset α) :
   (S ∪ (T ∪ {x})) = ((S ∪ {x}) ∪ T) :=
   by
-  simp only [Finset.union_right_comm S {x} T]
-  simp only [Finset.union_assoc S T {x}]
+  rewrite [Finset.union_right_comm S {x} T]
+  rewrite [Finset.union_assoc S T {x}]
+  rfl
 
 
 lemma Finset.image_sdiff_singleton
@@ -128,28 +131,29 @@ lemma Finset.image_sdiff_singleton
   (Finset.image f S) \ {x'} =
   (Finset.image f (S \ {x})) \ {x'} :=
   by
-  subst h1
-  apply Finset.ext
-  intro a
-  simp
-  intro a1
+  rewrite [← h1]
+  ext a
+  simp only [mem_sdiff, mem_image, mem_singleton]
   constructor
-  · intro a2
-    apply Exists.elim a2
-    intro b a3
-    apply Exists.intro b
-    cases a3
-    case _ a3_left a3_right =>
-      subst a3_right
+  · intro a1
+    obtain ⟨⟨b, ⟨a1_left_left, a1_left_right⟩⟩, a1_right⟩ := a1
+    constructor
+    · apply Exists.intro b
+      have s1 : ¬ b = x :=
+      by
+        intro contra
+        apply a1_right
+        rewrite [← contra]
+        rewrite [← a1_left_right]
+        rfl
       tauto
-  · intro a2
-    apply Exists.elim a2
-    intro b a3
-    apply Exists.intro b
-    cases a3
-    case _ a3_left a3_right =>
-      subst a3_right
+    · exact a1_right
+  · intro a1
+    obtain ⟨⟨b, ⟨⟨a1_left_left_left, a1_left_left_right⟩, a1_left_right⟩⟩, a1_right⟩ := a1
+    constructor
+    · apply Exists.intro b
       tauto
+    · exact a1_right
 
 
 lemma Finset.image_sdiff_singleton_updateITE
@@ -166,11 +170,11 @@ lemma Finset.image_sdiff_singleton_updateITE
   apply Finset.image_congr
   simp only [Set.EqOn]
   intro a a1
-  simp at a1
+  simp only [coe_sdiff, coe_singleton, Set.mem_diff, mem_coe, Set.mem_singleton_iff] at a1
+  obtain ⟨a1_left, a1_right⟩ := a1
   simp only [Function.updateITE]
-  cases a1
-  case _ a1_left a1_right =>
-    simp only [if_neg a1_right]
+  split_ifs
+  rfl
 
 
 lemma Finset.image_congr_update_ite
@@ -187,11 +191,11 @@ lemma Finset.image_congr_update_ite
   apply Finset.image_congr
   simp only [Set.EqOn]
   intro v a1
-  simp at a1
+  simp only [coe_sdiff, coe_singleton, Set.mem_diff, mem_coe, Set.mem_singleton_iff] at a1
+  obtain ⟨a1_left, a1_right⟩ := a1
   simp only [Function.updateITE]
-  cases a1
-  case intro a1_left a1_right =>
-    simp only [if_neg a1_right]
+  split_ifs
+  rfl
 
 
 lemma Finset.mem_image_update
@@ -209,7 +213,8 @@ lemma Finset.mem_image_update
   constructor
   · exact h2
   · simp only [Function.updateITE]
-    simp only [if_neg h1]
+    split_ifs
+    rfl
 
 
 #lint
