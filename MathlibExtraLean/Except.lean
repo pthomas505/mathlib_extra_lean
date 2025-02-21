@@ -1,25 +1,38 @@
-import Batteries
+import Mathlib.Tactic
 
 
 set_option autoImplicit false
 
 
 theorem Except.bind_eq_ok
-  {ε : Type}
-  {α : Type}
-  {β : Type}
+  {ε α β : Type}
   (x : Except ε α)
   (f : α → Except ε β)
-  (a : β):
-  (Except.bind x f = .ok a) ↔ ∃ b, x = .ok b ∧ f b = .ok a :=
+  (a : β) :
+  (Except.bind x f = .ok a) ↔ ∃ (b : α), x = .ok b ∧ f b = .ok a :=
   by
   cases x
   case error x =>
     simp only [Except.bind]
-    simp
+    constructor
+    · intro a1
+      contradiction
+    · intro a1
+      obtain ⟨b, ⟨a1_left, a1_right⟩⟩ := a1
+      contradiction
   case ok x =>
     simp only [Except.bind]
-    simp
+    constructor
+    · intro a1
+      apply Exists.intro x
+      constructor
+      · rfl
+      · exact a1
+    · intro a1
+      obtain ⟨b, ⟨a1_left, a1_right⟩⟩ := a1
+      simp only [ok.injEq] at a1_left
+      rewrite [a1_left]
+      exact a1_right
 
 
 def Option.toExcept
