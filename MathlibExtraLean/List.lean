@@ -4,7 +4,7 @@ import MathlibExtraLean.FunctionUpdateITE
 set_option autoImplicit false
 
 
-theorem List.map_mem_id_left
+theorem List.map_eq_self_imp_fun_is_id_on_mem
   {α : Type}
   (f : α → α)
   (xs : List α)
@@ -30,7 +30,7 @@ theorem List.map_mem_id_left
       · exact a1_right
 
 
-lemma List.map_mem_id_right
+lemma List.fun_is_id_on_mem_imp_map_eq_self
   {α : Type}
   (f : α → α)
   (xs: List α)
@@ -55,7 +55,7 @@ lemma List.map_mem_id_right
       exact a1
 
 
-theorem List.map_eq_self_iff
+theorem List.map_eq_self_iff_fun_is_id_on_mem
   {α : Type}
   (f : α → α)
   (xs : List α) :
@@ -63,8 +63,8 @@ theorem List.map_eq_self_iff
     ∀ (x : α), x ∈ xs → f x = x :=
   by
   constructor
-  · apply List.map_mem_id_left
-  · apply List.map_mem_id_right
+  · apply List.map_eq_self_imp_fun_is_id_on_mem
+  · apply List.fun_is_id_on_mem_imp_map_eq_self
 
 
 example
