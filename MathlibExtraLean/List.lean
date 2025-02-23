@@ -516,7 +516,8 @@ lemma List.length_cons_
 lemma List.nil_append_
   {α : Type}
   (as : List α) :
-  [] ++ as = as := by
+  [] ++ as = as :=
+  by
   unfold_projs
   unfold List.append
   rfl
@@ -553,7 +554,8 @@ lemma List.append_nil_
 lemma List.length_append_
   {α : Type}
   (as bs : List α) :
-  (as ++ bs).length = as.length + bs.length := by
+  (as ++ bs).length = as.length + bs.length :=
+  by
   induction as
   case nil =>
     rewrite [List.nil_append_]

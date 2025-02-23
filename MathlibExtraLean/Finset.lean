@@ -12,14 +12,14 @@ lemma Finset.union_subset_left_right
   (h2 : B ⊆ D) :
   A ∪ B ⊆ C ∪ D :=
   by
-    apply Finset.union_subset_iff.mpr
-    constructor
-    · trans C
-      · exact h1
-      · exact Finset.subset_union_left
-    · trans D
-      · exact h2
-      · exact Finset.subset_union_right
+  apply Finset.union_subset_iff.mpr
+  constructor
+  · trans C
+    · exact h1
+    · exact Finset.subset_union_left
+  · trans D
+    · exact h2
+    · exact Finset.subset_union_right
 
 
 lemma Finset.union_subset_union_left_right

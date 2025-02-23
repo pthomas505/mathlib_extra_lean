@@ -23,17 +23,17 @@ theorem list_of_fn_fin_zip_with_eq_list_zip_with_list_of_fn
   List.ofFn (Fin.zipWith f n xs_fn ys_fn) =
     List.zipWith f (List.ofFn xs_fn) (List.ofFn ys_fn) :=
   by
-    unfold Fin.zipWith
-    induction n
-    case zero =>
-      simp only [List.ofFn_zero]
-      unfold List.zipWith
-      rfl
-    case succ m ih =>
-      simp only [List.ofFn_succ]
-      unfold List.zipWith
-      congr
-      exact ih (fun (i : Fin m) => xs_fn i.succ) (fun (i : Fin m) => ys_fn i.succ)
+  unfold Fin.zipWith
+  induction n
+  case zero =>
+    simp only [List.ofFn_zero]
+    unfold List.zipWith
+    rfl
+  case succ m ih =>
+    simp only [List.ofFn_succ]
+    unfold List.zipWith
+    congr
+    exact ih (fun (i : Fin m) => xs_fn i.succ) (fun (i : Fin m) => ys_fn i.succ)
 
 
 theorem list_of_fn_fin_zip_with_eq_len_list_to_fn_eq_list_zip_with
@@ -74,16 +74,16 @@ lemma exists_list_of_fn_fin_zip_with_eq_len_eq_list_zip_with_and_list_of_fn_eq_l
     List.ofFn xs_fn = xs ∧
     List.ofFn ys_fn = ys :=
   by
-    apply Exists.intro (xs.length)
-    apply Exists.intro (fun (i : Fin xs.length) => xs[i])
-    apply Exists.intro (fun (i : Fin xs.length) => ys[i])
-    constructor
-    · apply list_of_fn_fin_zip_with_eq_len_list_to_fn_eq_list_zip_with
-      exact h1
-    · constructor
-      . simp only [Fin.getElem_fin, List.ofFn_getElem]
-      · simp only [h1]
-        simp only [Fin.getElem_fin, Fin.coe_cast, List.ofFn_getElem]
+  apply Exists.intro (xs.length)
+  apply Exists.intro (fun (i : Fin xs.length) => xs[i])
+  apply Exists.intro (fun (i : Fin xs.length) => ys[i])
+  constructor
+  · apply list_of_fn_fin_zip_with_eq_len_list_to_fn_eq_list_zip_with
+    exact h1
+  · constructor
+    . simp only [Fin.getElem_fin, List.ofFn_getElem]
+    · simp only [h1]
+      simp only [Fin.getElem_fin, Fin.coe_cast, List.ofFn_getElem]
 
 
 -------------------------------------------------------------------------------
@@ -98,23 +98,23 @@ theorem list_of_fn_fin_zip_with_min_len_list_to_fn_cons
   (ys_tl : List β) :
   List.ofFn (Fin.zipWith f (min (xs_hd :: xs_tl).length (ys_hd :: ys_tl).length) (fun i => (xs_hd :: xs_tl)[i]) (fun i => (ys_hd :: ys_tl)[i])) = f xs_hd ys_hd :: List.ofFn (fun (i : Fin (min xs_tl.length ys_tl.length)) => f xs_tl[i] ys_tl[i]) :=
   by
-    unfold Fin.zipWith
-    simp only [List.length_cons]
-    simp only [Fin.getElem_fin]
+  unfold Fin.zipWith
+  simp only [List.length_cons]
+  simp only [Fin.getElem_fin]
 
-    apply List.ext_get?
-    intro n
-    simp only [List.get?_eq_getElem?, List.getElem?_ofFn]
-    cases n
-    case _ =>
-      split_ifs
-      case pos c1 =>
-        simp only [List.getElem_cons_zero, List.length_cons, List.length_ofFn, Nat.zero_lt_succ, List.getElem?_eq_getElem]
-      case neg c1 =>
-        simp only [lt_inf_iff, Nat.zero_lt_succ] at c1
-        tauto
-    case _ n =>
-      simp only [lt_inf_iff, Nat.add_lt_add_iff_right, List.getElem_cons_succ, List.getElem?_cons_succ, List.getElem?_ofFn]
+  apply List.ext_get?
+  intro n
+  simp only [List.get?_eq_getElem?, List.getElem?_ofFn]
+  cases n
+  case _ =>
+    split_ifs
+    case pos c1 =>
+      simp only [List.getElem_cons_zero, List.length_cons, List.length_ofFn, Nat.zero_lt_succ, List.getElem?_eq_getElem]
+    case neg c1 =>
+      simp only [lt_inf_iff, Nat.zero_lt_succ] at c1
+      tauto
+  case _ n =>
+    simp only [lt_inf_iff, Nat.add_lt_add_iff_right, List.getElem_cons_succ, List.getElem?_cons_succ, List.getElem?_ofFn]
 
 
 lemma list_of_fn_fin_zip_with_min_len_list_to_fn_eq_list_zip_with

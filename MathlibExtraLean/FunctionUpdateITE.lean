@@ -196,15 +196,15 @@ theorem Function.updateITE_same
   (h1 : f a = b) :
   Function.updateITE f a b = f :=
   by
-    funext x
-    unfold Function.updateITE
-    split_ifs
-    case pos c1 =>
-      rewrite [c1]
-      rewrite [h1]
-      rfl
-    case neg c1 =>
-      rfl
+  funext x
+  unfold Function.updateITE
+  split_ifs
+  case pos c1 =>
+    rewrite [c1]
+    rewrite [h1]
+    rfl
+  case neg c1 =>
+    rfl
 
 
 theorem Function.updateITE_idem
