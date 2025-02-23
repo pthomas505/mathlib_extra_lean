@@ -5,10 +5,10 @@ set_option autoImplicit false
 
 
 /--
-  Function.updateITE at multiple points.
-  Function.updateFromPairOfListsITE f xs ys := Replaces the value of f at each point in xs by the value in ys at the same index.
-  If there are duplicate values in xs then the value at the smallest index is used.
-  If the lengths of xs and ys do not match then the longer is effectively truncated to the length of the smaller.
+  `Function.updateITE` at multiple points.
+  `Function.updateFromPairOfListsITE f xs ys` := Replaces the value of `f` at each point in `xs` by the value in `ys` at the same index.
+  If there are duplicate values in `xs` then the value at the smallest index is used.
+  If the lengths of `xs` and `ys` do not match then the longer is effectively truncated to the length of the smaller.
 -/
 def Function.updateFromPairOfListsITE
   {α β : Type}
@@ -40,16 +40,18 @@ theorem Function.updateFromPairOfListsITE_comp
   by
   induction xs generalizing ys
   case nil =>
-    simp only [Function.updateFromPairOfListsITE]
+    unfold Function.updateFromPairOfListsITE
+    rfl
   case cons _ xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
-      simp
-      simp only [Function.updateFromPairOfListsITE]
+      simp only [List.map_nil]
+      unfold Function.updateFromPairOfListsITE
+      rfl
     case cons ys_hd ys_tl =>
-      simp
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [← xs_ih]
+      simp only [List.map_cons]
+      unfold Function.updateFromPairOfListsITE
+      rewrite [← xs_ih]
       apply Function.updateITE_comp_left
 
 
@@ -65,21 +67,21 @@ theorem Function.updateFromPairOfListsITE_mem'
   by
   induction xs generalizing ys
   case nil =>
-    simp only [Function.updateFromPairOfListsITE]
+    unfold Function.updateFromPairOfListsITE
     exact h1
   case cons _ xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
-      simp
-      simp only [Function.updateFromPairOfListsITE]
+      simp only [List.map_nil]
+      unfold Function.updateFromPairOfListsITE
       exact h1
     case cons ys_hd ys_tl =>
-      simp
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [Function.updateITE]
+      simp only [List.map_cons]
+      unfold Function.updateFromPairOfListsITE
+      unfold Function.updateITE
       split_ifs
       · rfl
-      · exact xs_ih ys_tl
+      · apply xs_ih
 
 
 theorem Function.updateFromPairOfListsITE_mem_eq_len
@@ -96,26 +98,31 @@ theorem Function.updateFromPairOfListsITE_mem_eq_len
   by
   induction xs generalizing ys
   case nil =>
-    contradiction
+    simp only [List.not_mem_nil] at h1
   case cons xs_hd xs_tl xs_ih =>
-    simp at h1
+    simp only [List.mem_cons] at h1
 
     cases ys
     case nil =>
+      simp only [List.length_cons, List.length_nil] at h2
       contradiction
     case cons ys_hd ys_tl =>
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [Function.updateITE]
+      unfold Function.updateFromPairOfListsITE
+      unfold Function.updateITE
       cases h1
       case inl h1 =>
-        simp only [if_pos h1]
+        split_ifs
+        rfl
       case inr h1 =>
         split_ifs
         case pos =>
           rfl
         case neg c1 =>
-          simp at h2
-          exact xs_ih ys_tl h1 h2
+          simp only [List.length_cons] at h2
+          simp only [Nat.succ.injEq] at h2
+          apply xs_ih
+          · exact h1
+          · exact h2
 
 
 theorem Function.updateFromPairOfListsITE_mem
@@ -136,15 +143,15 @@ theorem Function.updateFromPairOfListsITE_mem
   case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
-      simp at h1
+      simp only [List.mem_cons] at h1
 
-      simp only [Function.updateFromPairOfListsITE]
+      unfold Function.updateFromPairOfListsITE
       exact h2
     case cons ys_hd ys_tl =>
-      simp at h1
+      simp only [List.mem_cons] at h1
 
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [Function.updateITE]
+      unfold Function.updateFromPairOfListsITE
+      unfold Function.updateITE
       split_ifs
       case pos =>
         rfl
@@ -153,7 +160,8 @@ theorem Function.updateFromPairOfListsITE_mem
         case inl c2 =>
           contradiction
         case inr c2 =>
-          exact xs_ih ys_tl c2
+          apply xs_ih
+          exact c2
 
 
 theorem Function.updateFromPairOfListsITE_not_mem
@@ -168,24 +176,25 @@ theorem Function.updateFromPairOfListsITE_not_mem
   by
   induction xs generalizing ys
   case nil =>
-    simp only [Function.updateFromPairOfListsITE]
+    unfold Function.updateFromPairOfListsITE
+    rfl
   case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
-      simp only [Function.updateFromPairOfListsITE]
+      unfold Function.updateFromPairOfListsITE
+      rfl
     case cons ys_hd ys_tl =>
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [Function.updateITE]
+      unfold Function.updateFromPairOfListsITE
+      unfold Function.updateITE
       split_ifs
       case pos c1 =>
-        subst c1
-        simp at h1
+        rewrite [c1]
+        simp only [List.mem_cons] at h1
+        tauto
       case neg c1 =>
-        simp at h1
-        push_neg at h1
-        cases h1
-        case intro h1_left h1_right =>
-          apply xs_ih ys_tl h1_right
+        simp only [List.mem_cons] at h1
+        apply xs_ih
+        tauto
 
 
 theorem Function.updateFromPairOfListsITE_updateIte
@@ -202,18 +211,20 @@ theorem Function.updateFromPairOfListsITE_updateIte
   by
   induction xs generalizing ys
   case nil =>
-    simp only [Function.updateFromPairOfListsITE]
-    simp only [Function.updateITE]
-    simp only [if_neg h1]
+    unfold Function.updateFromPairOfListsITE
+    unfold Function.updateITE
+    split_ifs
+    rfl
   case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [Function.updateITE]
-      simp only [if_neg h1]
+      unfold Function.updateFromPairOfListsITE
+      unfold Function.updateITE
+      split_ifs
+      rfl
     case cons ys_hd ys_tl =>
-      simp only [Function.updateFromPairOfListsITE]
-      simp only [Function.updateITE]
+      unfold Function.updateFromPairOfListsITE
+      unfold Function.updateITE
       split_ifs
       case pos c1 =>
         rfl
@@ -229,7 +240,7 @@ theorem Function.updateFromPairOfListsITE_fun_coincide_mem_eq_len
   (x : α)
   (h1 : ∀ (v : α), v ∈ ys → f v = g v)
   (h2 : x ∈ xs)
-  (h3 : xs.length = ys.length):
+  (h3 : xs.length = ys.length) :
   Function.updateFromPairOfListsITE f xs (List.map f ys) x =
     Function.updateFromPairOfListsITE g xs (List.map g ys) x :=
   by
@@ -237,10 +248,10 @@ theorem Function.updateFromPairOfListsITE_fun_coincide_mem_eq_len
   simp only [List.map_eq_map_iff]
   exact h1
 
-  simp only [s1]
+  rewrite [s1]
   apply Function.updateFromPairOfListsITE_mem_eq_len
   · exact h2
-  · simp
+  · simp only [List.length_map]
     exact h3
 
 
@@ -260,10 +271,10 @@ theorem Function.updateFromPairOfListsITE_map_mem_ext
   simp only [List.map_eq_map_iff]
   exact h1
 
-  simp only [s1]
+  rewrite [s1]
   apply Function.updateFromPairOfListsITE_mem_eq_len
   · exact h3
-  · simp
+  · simp only [List.length_map]
     exact h2
 
 
@@ -278,18 +289,18 @@ theorem Function.updateFromPairOfListsITE_map_mem
   by
   induction xs
   case nil =>
-    simp at h1
+    simp only [List.not_mem_nil] at h1
   case cons hd tl ih =>
-    simp at h1
+    simp only [List.mem_cons] at h1
 
-    simp
-    simp only [Function.updateFromPairOfListsITE]
-    simp only [Function.updateITE]
+    simp only [List.map_cons]
+    unfold Function.updateFromPairOfListsITE
+    unfold Function.updateITE
     split_ifs
-    case _ c1 =>
-      subst c1
+    case pos c1 =>
+      rewrite [c1]
       rfl
-    case _ c1 =>
+    case neg c1 =>
       tauto
 
 
@@ -307,14 +318,17 @@ theorem Function.updateFromPairOfListsITE_map_updateIte
   Function.updateFromPairOfListsITE f xs (List.map f ys) x =
   Function.updateFromPairOfListsITE g xs (List.map (Function.updateITE f v a) ys) x :=
   by
-  have s1 : ∀ (y : α), y ∈ ys → f y =Function.updateITE f v a y
-  intro y a1
-  simp only [Function.updateITE]
-  split_ifs
-  case _ c1 =>
-    specialize h1 y a1
-    contradiction
-  case _ c2 =>
-    rfl
+  apply updateFromPairOfListsITE_map_mem_ext
+  · intro y a1
+    unfold Function.updateITE
+    split_ifs
+    case pos c1 =>
+      specialize h1 y a1
+      contradiction
+    case neg c2 =>
+      rfl
+  · exact h2
+  · exact h3
 
-  exact Function.updateFromPairOfListsITE_map_mem_ext xs ys f g f (Function.updateITE f v a) x s1 h2 h3
+
+#lint
