@@ -4,7 +4,7 @@ import MathlibExtraLean.FunctionUpdateITE
 set_option autoImplicit false
 
 
-theorem List.map_eq_self_imp_fun_is_id_on_mem
+lemma List.map_eq_self_imp_fun_is_id_on_mem
   {α : Type}
   (f : α → α)
   (xs : List α)
