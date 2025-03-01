@@ -146,8 +146,8 @@ example
 def Function.toListOfPairs
   {α β : Type}
   [DecidableEq α]
-  (f : α → β)
-  (l : List α) :
+  (l : List α)
+  (f : α → β) :
   List (α × β) :=
   l.map (fun (x : α) => (x, f x))
 
@@ -156,11 +156,11 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_not_mem
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
-  (f : α → β)
   (l : List α)
+  (f : α → β)
   (x : α)
   (h1 : x ∉ l) :
-  Function.updateFromListOfPairsITE init (Function.toListOfPairs f l) x = init x :=
+  Function.updateFromListOfPairsITE init (Function.toListOfPairs l f) x = init x :=
   by
   induction l
   case nil =>
@@ -189,11 +189,11 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_mem
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
-  (f : α → β)
   (l : List α)
+  (f : α → β)
   (x : α)
   (h1 : x ∈ l) :
-  Function.updateFromListOfPairsITE init (Function.toListOfPairs f l) x = f x :=
+  Function.updateFromListOfPairsITE init (Function.toListOfPairs l f) x = f x :=
   by
   induction l
   case nil =>
@@ -228,10 +228,10 @@ lemma all_not_mem_are_init_imp_updateFromListOfPairsITE_of_toListOfPairs
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
-  (f : α → β)
   (l : List α)
+  (f : α → β)
   (h1 : ∀ x ∉ l, f x = init x) :
-  (Function.updateFromListOfPairsITE init (Function.toListOfPairs f l)) = f :=
+  (Function.updateFromListOfPairsITE init (Function.toListOfPairs l f)) = f :=
   by
   funext x
   by_cases c1 : x ∈ l
@@ -249,9 +249,9 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_imp_all_not_mem_are_init
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
-  (f : α → β)
   (l : List α)
-  (h1 : (Function.updateFromListOfPairsITE init (Function.toListOfPairs f l)) = f) :
+  (f : α → β)
+  (h1 : (Function.updateFromListOfPairsITE init (Function.toListOfPairs l f)) = f) :
   ∀ x ∉ l, f x = init x :=
   by
   intro x a1
