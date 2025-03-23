@@ -332,6 +332,230 @@ theorem nodup_eq_len_imp_eqv
 -------------------------------------------------------------------------------
 
 
+lemma List.foldr_cons_append_init
+  {α β : Type}
+  (f : α → β)
+  (xs_left xs_right : List β)
+  (ys : List α) :
+  List.foldr (fun (next : α) (prev : List β) => (f next) :: prev) (xs_left ++ xs_right) ys =
+    (List.foldr (fun (next : α) (prev : List β) => (f next) :: prev) xs_left ys) ++ xs_right :=
+  by
+  induction ys
+  case nil =>
+    simp only [List.foldr_nil]
+  case cons hd tl ih =>
+    simp only [List.foldr_cons, List.cons_append]
+    rewrite [ih]
+    rfl
+
+
+lemma aux_2
+  {α β γ : Type}
+  (f : α → γ)
+  (g : β → γ)
+  (xs : List α)
+  (ys : List β)
+  (h1 : xs.length = ys.length)
+  (h2 : ∀ (p : α × β), p ∈ List.zip xs ys → f p.fst = g p.snd) :
+  List.map f xs = List.map g ys :=
+  by
+  induction xs generalizing ys f g
+  case nil =>
+    cases ys
+    case nil =>
+      simp only [List.map_nil]
+    case cons ys_hd ys_tl =>
+      simp only [List.length_nil, List.length_cons] at h1
+      simp only [Nat.zero_ne_add_one] at h1
+  case cons xs_hd xs_tl xs_ih =>
+    cases ys
+    case nil =>
+      simp only [List.length_cons, List.length_nil] at h1
+      simp only [Nat.add_one_ne_zero] at h1
+    case cons ys_hd ys_tl =>
+      simp only [List.length_cons, add_left_inj] at h1
+
+      simp only [List.zip_cons_cons, List.mem_cons] at h2
+
+      simp only [List.map_cons, List.cons.injEq]
+      constructor
+      · specialize h2 (xs_hd, ys_hd)
+        apply h2
+        left
+        rfl
+      · apply xs_ih
+        · exact h1
+        · intro p a1
+          apply h2
+          right
+          exact a1
+
+
+lemma aux_3
+  {α : Type}
+  (xs ys : List α)
+  (pred : α → Bool)
+  (p : α × α)
+  (h1 : p ∈ List.zip (List.filter pred xs) (List.filter pred ys))
+  (h2 : ∀ (q : α × α), q ∈ List.zip xs ys → pred q.1 = pred q.2) :
+  p ∈ List.zip xs ys :=
+  by
+  induction xs generalizing ys
+  case nil =>
+    simp only [List.filter_nil, List.zip_nil_left, List.not_mem_nil] at h1
+  case cons xs_hd xs_tl xs_ih =>
+    cases ys
+    case nil =>
+      simp only [List.filter_nil, List.zip_nil_right, List.not_mem_nil] at h1
+    case cons ys_hd ys_tl =>
+      simp only [List.filter_cons] at h1
+
+      simp only [List.zip_cons_cons, List.mem_cons] at h2
+
+      simp only [List.zip_cons_cons, List.mem_cons]
+      split_ifs at h1
+      case pos c1 c2 =>
+        simp only [List.zip_cons_cons, List.mem_cons] at h1
+        cases h1
+        case inl h1 =>
+          left
+          exact h1
+        case inr h1 =>
+          right
+          apply xs_ih
+          · exact h1
+          · intro q a1
+            apply h2
+            right
+            exact a1
+      case neg c1 c2 =>
+        exfalso
+        apply c2
+        rewrite [← c1]
+        specialize h2 (xs_hd, ys_hd)
+        simp only at h2
+        rewrite [← h2]
+        · rfl
+        · left
+          exact trivial
+      case pos c1 c2 =>
+        exfalso
+        apply c1
+        rewrite [← c2]
+        specialize h2 (xs_hd, ys_hd)
+        simp only at h2
+        apply h2
+        left
+        exact trivial
+      case neg c1 c2 =>
+        right
+        apply xs_ih
+        · exact h1
+        · intro q a1
+          apply h2
+          right
+          exact a1
+
+
+lemma pred_eq_all_mem_zip_imp_filter_length_eq
+  {α : Type}
+  (xs ys : List α)
+  (pred : α → Bool)
+  (h1 : xs.length = ys.length)
+  (h2 : ∀ (p : α × α), p ∈ List.zip xs ys → pred p.1 = pred p.2) :
+  (List.filter pred xs).length = (List.filter pred ys).length :=
+  by
+  induction xs generalizing ys
+  case nil =>
+    cases ys
+    case nil =>
+      simp only [List.filter_nil, List.length_nil]
+    case cons ys_hd ys_tl =>
+      simp only [List.length_nil, List.length_cons] at h1
+      simp only [Nat.zero_ne_add_one] at h1
+  case cons xs_hd xs_tl xs_ih =>
+    cases ys
+    case nil =>
+      simp only [List.length_cons, List.length_nil] at h1
+      simp only [Nat.add_one_ne_zero] at h1
+    case cons ys_hd ys_tl =>
+      simp only [List.length_cons, add_left_inj] at h1
+
+      simp only [List.zip_cons_cons, List.mem_cons] at h2
+
+      simp only [List.filter_cons]
+      split_ifs
+      case pos c1 c2 =>
+        simp only [List.length_cons, add_left_inj]
+        apply xs_ih
+        · exact h1
+        · intro p a1
+          apply h2
+          right
+          exact a1
+      case neg c1 c2 =>
+        exfalso
+        apply c2
+        rewrite [← c1]
+        specialize h2 (xs_hd, ys_hd)
+        simp only at h2
+        rewrite [← h2]
+        · rfl
+        · left
+          exact trivial
+      case pos c1 c2 =>
+        exfalso
+        apply c1
+        rewrite [← c2]
+        specialize h2 (xs_hd, ys_hd)
+        simp only at h2
+        apply h2
+        left
+        exact trivial
+      case neg c1 c2 =>
+        apply xs_ih
+        · exact h1
+        · intro p a1
+          apply h2
+          right
+          exact a1
+
+
+example
+  {α β : Type}
+  [DecidableEq α]
+  [DecidableEq β]
+  (f : α → β)
+  (l1 l2 : List α)
+  (h1 : Function.Injective f) :
+  List.map f (l1 ∪ l2) = (List.map f l1) ∪ (List.map f l2) :=
+  by
+  induction l1
+  case nil =>
+    simp only [List.map_nil]
+    simp only [List.nil_union]
+  case cons hd tl ih =>
+    simp only [List.cons_union, List.map_cons]
+    rewrite [← ih]
+    unfold List.insert
+
+    have s1 : List.elem (f hd) (List.map f (tl ∪ l2)) = true ↔ List.elem hd (tl ∪ l2) = true :=
+    by
+      simp only [List.elem_eq_mem, decide_eq_true_eq]
+      apply List.mem_map_of_injective
+      exact h1
+
+    simp only [s1]
+    split_ifs
+    case pos c1 =>
+      rfl
+    case neg c1 =>
+      simp only [List.map_cons]
+
+
+-------------------------------------------------------------------------------
+
+
 example
   {α : Type}
   (l : List α)
