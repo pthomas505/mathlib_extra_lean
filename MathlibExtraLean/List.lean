@@ -349,7 +349,7 @@ lemma List.foldr_cons_append_init
     rfl
 
 
-lemma List.mem_zip_map_eq
+lemma List.length_eq_and_mem_zip_imp_fun_eq_imp_map_eq
   {α β γ : Type}
   (f : α → γ)
   (g : β → γ)
