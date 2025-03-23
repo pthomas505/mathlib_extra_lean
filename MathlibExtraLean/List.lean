@@ -349,7 +349,7 @@ lemma List.foldr_cons_append_init
     rfl
 
 
-lemma aux_2
+lemma List.mem_zip_map_eq
   {α β γ : Type}
   (f : α → γ)
   (g : β → γ)
@@ -391,7 +391,7 @@ lemma aux_2
           exact a1
 
 
-lemma aux_3
+lemma List.mem_zip_filter_and_pred_eq_all_mem_zip_imp_mem_zip
   {α : Type}
   (xs ys : List α)
   (pred : α → Bool)
@@ -457,7 +457,7 @@ lemma aux_3
           exact a1
 
 
-lemma pred_eq_all_mem_zip_imp_filter_length_eq
+lemma List.pred_eq_all_mem_zip_imp_filter_length_eq
   {α : Type}
   (xs ys : List α)
   (pred : α → Bool)
