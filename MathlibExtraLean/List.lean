@@ -697,28 +697,47 @@ example
   ∃ (xs : List α), xs ∈ ll ∧ xs ⊆ l ∧
     ∀ (ys : List α), (ys ∈ ll ∧ ys ⊆ xs) → xs ⊆ ys :=
   by
-  let ll' : List (List α) := List.filter (fun (zs : List α) => zs ⊆ l) ll
-  have s9 : ¬ ll' = [] := by aesop
-  have s10 : ∀ (zs : List α), (zs ∈ ll ∧ zs ⊆ l) → zs ∈ ll' := by aesop
-  have s11 : ∀ (zs : List α), zs ∈ ll' → zs ∈ ll ∧ zs ⊆ l := by aesop
+  let ll' : List (List α) := List.filter (fun (l' : List α) => l' ⊆ l) ll
 
-  obtain s1 := List.exists_minimal_subset ll' s9
-  obtain ⟨xs, s1_left, s1_right⟩ := s1
+  have s1 : l ∈ ll' :=
+  by
+    simp only [ll']
+    simp only [List.mem_filter]
+    simp only [decide_eq_true_iff]
+    constructor
+    · exact h1
+    · apply List.Subset.refl
+
+  have s2 : ¬ ll' = [] :=
+  by
+    intro contra
+    rewrite [contra] at s1
+    simp only [List.not_mem_nil] at s1
+
+  obtain ⟨xs, s1_left, s1_right⟩ := List.exists_minimal_subset ll' s2
+
+  simp only [ll'] at s1_left
+  simp only [List.mem_filter] at s1_left
+  simp only [decide_eq_true_iff] at s1_left
+  obtain ⟨s1_left_left, s1_left_right⟩ := s1_left
+
   apply Exists.intro xs
   constructor
-  · aesop
+  · exact s1_left_left
   · constructor
-    · aesop
+    · exact s1_left_right
     · intro ys a1
       obtain ⟨a1_left, a1_right⟩ := a1
       apply s1_right
       constructor
-      · apply s10
+      · simp only [ll']
+        simp only [List.mem_filter]
+        simp only [decide_eq_true_iff]
         constructor
         · exact a1_left
         · trans xs
           · exact a1_right
-          · aesop
+          · exact s1_left_right
       · exact a1_right
 
 
