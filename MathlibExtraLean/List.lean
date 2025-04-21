@@ -688,7 +688,7 @@ lemma List.exists_minimal_subset
             exact ⟨a1_left, a1_right⟩
 
 
-example
+lemma List.exists_minimal_subset_of_mem
   {α : Type}
   [DecidableEq α]
   (ll : List (List α))
