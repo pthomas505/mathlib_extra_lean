@@ -521,7 +521,7 @@ lemma List.pred_eq_all_mem_zip_imp_filter_length_eq
           exact a1
 
 
-example
+lemma List.map_union
   {α β : Type}
   [DecidableEq α]
   [DecidableEq β]
