@@ -102,9 +102,9 @@ theorem list_of_fn_fin_zip_with_min_len_list_to_fn_cons
   simp only [List.length_cons]
   simp only [Fin.getElem_fin]
 
-  apply List.ext_get?
+  apply List.ext_getElem?
   intro n
-  simp only [List.get?_eq_getElem?, List.getElem?_ofFn]
+  simp only [List.getElem?_ofFn]
   cases n
   case _ =>
     split_ifs

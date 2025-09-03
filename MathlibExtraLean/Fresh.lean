@@ -21,7 +21,7 @@ lemma finset_string_max_len_mem
   by
   induction xs using Finset.induction_on
   case empty =>
-    simp only [Finset.not_mem_empty] at h1
+    simp only [Finset.notMem_empty] at h1
   case insert hd tl a1 ih =>
     simp only [Finset.mem_insert] at h1
 

@@ -765,7 +765,7 @@ example
       apply Exists.intro zs
       apply Exists.intro y
       rewrite [eq]
-      simp only [List.append_assoc, List.singleton_append, List.cons_append]
+      simp only [List.append_assoc, List.cons_append]
 
 
 lemma List.exists_mem_imp_exists_leftmost_mem
@@ -1013,7 +1013,7 @@ lemma lreseq
         · rfl
         · exact a1_right
     case cons hd tl =>
-      simp only [List.cons_append, List.append_assoc, List.singleton_append, List.cons.injEq, List.append_eq_nil, List.nil_append] at a1
+      simp only [List.cons_append, List.append_assoc, List.cons.injEq, List.append_eq_nil_iff, List.nil_append] at a1
       obtain ⟨a1_left, ⟨a1_right_left, a1_right_right⟩⟩ := a1
       contradiction
   · simp only [List.append_assoc, List.singleton_append]
@@ -1050,7 +1050,7 @@ lemma rgr_r9
       apply Exists.intro (hd :: r1)
       apply Exists.intro r2
       rewrite [a1]
-      simp only [List.append_assoc, List.singleton_append, List.cons_append]
+      simp only [List.append_assoc, List.cons_append]
 
 
 lemma rgr_r9b
@@ -1105,7 +1105,7 @@ lemma append_eq_singleton
     simp only [List.nil_append]
     tauto
   case cons hd tl =>
-    simp only [List.cons_append, List.cons.injEq, List.append_eq_nil]
+    simp only [List.cons_append, List.cons.injEq, List.append_eq_nil_iff]
     tauto
 
 
@@ -1123,7 +1123,7 @@ lemma list_r2
     tauto
   case inr h1_right =>
     obtain ⟨h1_right_left, h1_right_right⟩ := h1_right
-    simp only [List.append_eq_nil] at h1_right_left
+    simp only [List.append_eq_nil_iff] at h1_right_left
     obtain ⟨h1_right_left_left, h1_right_right_right⟩ := h1_right_left
     contradiction
 
