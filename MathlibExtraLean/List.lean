@@ -279,7 +279,7 @@ lemma List.nodup_eq_len_imp_exists_bijon
           case inl c3 =>
             contradiction
           case inr c3 =>
-            obtain s1 := List.mem_map_of_mem f c3
+            obtain s1 := List.mem_map_of_mem c3
             rewrite [a1_right] at s1
             rewrite [← a2] at s1
             contradiction
@@ -289,7 +289,7 @@ lemma List.nodup_eq_len_imp_exists_bijon
           case inl c3 =>
             contradiction
           case inr c3 =>
-            obtain s1 := List.mem_map_of_mem f c3
+            obtain s1 := List.mem_map_of_mem c3
             rewrite [a1_right] at s1
             rewrite [a2] at s1
             contradiction
