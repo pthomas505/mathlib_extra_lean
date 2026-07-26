@@ -513,7 +513,7 @@ theorem List.pred_eq_all_mem_zip_imp_filter_length_eq
           specialize h2 (xs_hd, ys_hd)
           simp only at h2
           rewrite [← h2]
-          · rfl
+          · apply Eq.refl
           · left
             exact trivial
       case isFalse c1 =>
