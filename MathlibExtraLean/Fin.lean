@@ -1,7 +1,8 @@
 import Mathlib.Data.List.OfFn
 
 
-set_option autoImplicit false
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
 
 
 def Fin.zipWith
@@ -28,12 +29,12 @@ theorem list_of_fn_fin_zip_with_eq_list_zip_with_list_of_fn
   case zero =>
     simp only [List.ofFn_zero]
     unfold List.zipWith
-    rfl
+    apply Eq.refl
   case succ m ih =>
     simp only [List.ofFn_succ]
     unfold List.zipWith
     congr
-    exact ih (fun (i : Fin m) => xs_fn i.succ) (fun (i : Fin m) => ys_fn i.succ)
+    apply ih
 
 
 theorem list_of_fn_fin_zip_with_eq_len_list_to_fn_eq_list_zip_with
@@ -63,7 +64,7 @@ theorem list_of_fn_fin_zip_with_eq_len_list_to_fn_eq_list_zip_with
       exact h1
 
 
-lemma exists_list_of_fn_fin_zip_with_eq_len_eq_list_zip_with_and_list_of_fn_eq_list
+theorem exists_list_of_fn_fin_zip_with_eq_len_eq_list_zip_with_and_list_of_fn_eq_list
   {α β γ : Type}
   (f : α → β → γ)
   (xs : List α)
@@ -81,9 +82,9 @@ lemma exists_list_of_fn_fin_zip_with_eq_len_eq_list_zip_with_and_list_of_fn_eq_l
   · apply list_of_fn_fin_zip_with_eq_len_list_to_fn_eq_list_zip_with
     exact h1
   · constructor
-    . simp only [Fin.getElem_fin, List.ofFn_getElem]
+    · simp only [Fin.getElem_fin, List.ofFn_getElem]
     · simp only [h1]
-      simp only [Fin.getElem_fin, Fin.coe_cast, List.ofFn_getElem]
+      simp only [Fin.getElem_fin, Fin.val_cast, List.ofFn_getElem]
 
 
 -------------------------------------------------------------------------------
@@ -106,18 +107,21 @@ theorem list_of_fn_fin_zip_with_min_len_list_to_fn_cons
   intro n
   simp only [List.getElem?_ofFn]
   cases n
-  case _ =>
-    split_ifs
-    case pos c1 =>
+  case zero =>
+    split
+    case isTrue c1 =>
       simp only [List.getElem_cons_zero, List.length_cons, List.length_ofFn, Nat.zero_lt_succ, List.getElem?_eq_getElem]
-    case neg c1 =>
+    case isFalse c1 =>
       simp only [lt_inf_iff, Nat.zero_lt_succ] at c1
-      tauto
-  case _ n =>
+      rewrite [not_and] at c1
+      rewrite [not_true_eq_false] at c1
+      specialize c1 True.intro
+      contradiction
+  case succ n =>
     simp only [lt_inf_iff, Nat.add_lt_add_iff_right, List.getElem_cons_succ, List.getElem?_cons_succ, List.getElem?_ofFn]
 
 
-lemma list_of_fn_fin_zip_with_min_len_list_to_fn_eq_list_zip_with
+theorem list_of_fn_fin_zip_with_min_len_list_to_fn_eq_list_zip_with
   {α β γ : Type}
   (f : α → β → γ)
   (xs : List α)
@@ -126,11 +130,12 @@ lemma list_of_fn_fin_zip_with_min_len_list_to_fn_eq_list_zip_with
   by
   induction xs generalizing ys
   case nil =>
-    simp
+    simp only [List.length_nil, Nat.zero_le, inf_of_le_left, List.ofFn_zero, List.zipWith_nil_left]
   case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
-      simp only [List.length_cons, List.length_nil, List.ofFn_zero, List.zipWith_nil_right]
+      simp only [List.length_cons, List.length_nil, List.zipWith_nil_right]
+      exact List.ofFn_zero
     case cons ys_hd ys_tl =>
       simp only [List.zipWith]
       rewrite [list_of_fn_fin_zip_with_min_len_list_to_fn_cons]

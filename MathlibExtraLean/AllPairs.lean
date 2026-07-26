@@ -1,7 +1,7 @@
 import MathlibExtraLean.List
 
 
-set_option autoImplicit false
+set_option linter.style.emptyLine false
 
 
 /-
@@ -24,7 +24,7 @@ def itlist
   | h :: t => f h (itlist f t b)
 
 
-lemma itlist_eq_foldr
+theorem itlist_eq_foldr
   {α β : Type}
   (f : α → β → β)
   (l : List α)
@@ -35,12 +35,12 @@ lemma itlist_eq_foldr
   case nil =>
     unfold itlist
     unfold List.foldr
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     unfold itlist
     unfold List.foldr
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
 /-
@@ -91,13 +91,13 @@ example
   case nil =>
     unfold all_pairs_v1
     unfold all_pairs_v2
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     unfold all_pairs_v1
     unfold all_pairs_v2
     rewrite [itlist_eq_foldr]
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
 #eval all_pairs_v2 List.append [[1]] []
@@ -149,7 +149,7 @@ example
   case nil =>
     unfold all_pairs_v2
     unfold all_pairs_v3
-    rfl
+    apply Eq.refl
   case cons l1_hd l1_tl l1_ih =>
     unfold all_pairs_v2
     unfold all_pairs_v3
@@ -184,20 +184,20 @@ example
   case nil =>
     unfold all_pairs_v4
     unfold all_pairs_v3
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     unfold all_pairs_v4
     unfold all_pairs_v3
     unfold distrib_one
     simp only [List.map_eq_foldr]
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
 -------------------------------------------------------------------------------
 
 
-lemma all_pairs_v4_nil_right
+theorem all_pairs_v4_nil_right
   {α : Type}
   (f : List α → List α → List α)
   (l : List (List α)) :
@@ -206,14 +206,14 @@ lemma all_pairs_v4_nil_right
   induction l
   case nil =>
     unfold all_pairs_v4
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     unfold all_pairs_v4
     simp only [List.map_nil, List.nil_append]
     exact ih
 
 
-lemma all_pairs_v4_singleton_left_cons_right
+theorem all_pairs_v4_singleton_left_cons_right
   {α : Type}
   (f : List α → List α → List α)
   (xs : List α)
@@ -228,7 +228,7 @@ lemma all_pairs_v4_singleton_left_cons_right
 -------------------------------------------------------------------------------
 
 
-lemma mem_all_pairs_v4_union_imp_eq_union
+theorem mem_all_pairs_v4_union_imp_eq_union
   {α : Type}
   [DecidableEq α]
   (l1 l2 : List (List α))
@@ -265,7 +265,7 @@ lemma mem_all_pairs_v4_union_imp_eq_union
       · exact ih_right
 
 
-lemma eq_union_imp_mem_all_pairs_v4_union
+theorem eq_union_imp_mem_all_pairs_v4_union
   {α : Type}
   [DecidableEq α]
   (l1 l2 : List (List α))
@@ -296,7 +296,7 @@ lemma eq_union_imp_mem_all_pairs_v4_union
       exact xs_mem
 
 
-lemma mem_all_pairs_v4_union_iff_eq_union
+theorem mem_all_pairs_v4_union_iff_eq_union
   {α : Type}
   [DecidableEq α]
   (l1 l2 : List (List α))

@@ -1,10 +1,10 @@
 import MathlibExtraLean.FunctionUpdateITE
 
 
-set_option autoImplicit false
+set_option linter.style.emptyLine false
 
 
-lemma Finset.union_subset_left_right
+theorem Finset.union_subset_left_right
   {α : Type}
   [DecidableEq α]
   (A B C D : Finset α)
@@ -22,7 +22,7 @@ lemma Finset.union_subset_left_right
     · exact Finset.subset_union_right
 
 
-lemma Finset.union_subset_union_left_right
+theorem Finset.union_subset_union_left_right
   {α : Type}
   [DecidableEq α]
   (A B C D E : Finset α)
@@ -42,7 +42,7 @@ lemma Finset.union_subset_union_left_right
       exact Finset.subset_union_right
 
 
-lemma Finset.union_subset_diff
+theorem Finset.union_subset_diff
   {α : Type}
   [DecidableEq α]
   (A B C D E : Finset α)
@@ -56,15 +56,15 @@ lemma Finset.union_subset_diff
     · exact h1
     · apply Finset.sdiff_subset_sdiff
       · exact Finset.subset_union_left
-      · rfl
+      · apply Finset.Subset.refl
   · trans D \ E
     · exact h2
     · apply Finset.sdiff_subset_sdiff
       · exact Finset.subset_union_right
-      · rfl
+      · apply Finset.Subset.refl
 
 
-lemma Finset.union_subset_left_right_diff
+theorem Finset.union_subset_left_right_diff
   {α : Type}
   [DecidableEq α]
   (A B C D E F : Finset α)
@@ -79,16 +79,16 @@ lemma Finset.union_subset_left_right_diff
     · apply Finset.union_subset_union_right
       apply Finset.sdiff_subset_sdiff
       · exact Finset.subset_union_left
-      · rfl
+      · apply Finset.Subset.refl
   · trans E ∪ D \ F
     · exact h2
     · apply Finset.union_subset_union_right
       apply Finset.sdiff_subset_sdiff
       · exact Finset.subset_union_right
-      · rfl
+      · apply Finset.Subset.refl
 
 
-lemma Finset.diff_union_subset
+theorem Finset.diff_union_subset
   {α : Type}
   [DecidableEq α]
   (A B C D E : Finset α)
@@ -96,18 +96,19 @@ lemma Finset.diff_union_subset
   (h2 : B \ E ⊆ D) :
   (A ∪ B) \ E ⊆ C ∪ D :=
   by
-  have s1 : (A ∪ B) \ E = (A \ E) ∪ (B \ E)
-  exact Finset.union_sdiff_distrib A B E
+  have s1 : (A ∪ B) \ E = (A \ E) ∪ (B \ E) :=
+  by
+    exact Finset.union_sdiff_distrib A B E
 
   trans (A \ E) ∪ (B \ E)
   · rewrite [s1]
-    rfl
+    apply Finset.Subset.refl
   · apply Finset.union_subset_left_right
     · exact h1
     · exact h2
 
 
-lemma Finset.union_right_comm_assoc
+theorem Finset.union_right_comm_assoc
   {α : Type}
   [DecidableEq α]
   (x : α)
@@ -116,10 +117,10 @@ lemma Finset.union_right_comm_assoc
   by
   rewrite [Finset.union_right_comm S {x} T]
   rewrite [Finset.union_assoc S T {x}]
-  rfl
+  apply Eq.refl
 
 
-lemma Finset.image_sdiff_singleton
+theorem Finset.image_sdiff_singleton
   {α β : Type}
   [DecidableEq α]
   [DecidableEq β]
@@ -139,24 +140,32 @@ lemma Finset.image_sdiff_singleton
     obtain ⟨⟨b, ⟨a1_left_left, a1_left_right⟩⟩, a1_right⟩ := a1
     constructor
     · apply Exists.intro b
+
       have s1 : ¬ b = x :=
       by
         intro contra
         apply a1_right
         rewrite [← contra]
         rewrite [← a1_left_right]
-        rfl
-      tauto
+        apply Eq.refl
+
+      constructor
+      · constructor
+        · exact a1_left_left
+        · exact s1
+      · exact a1_left_right
     · exact a1_right
   · intro a1
     obtain ⟨⟨b, ⟨⟨a1_left_left_left, a1_left_left_right⟩, a1_left_right⟩⟩, a1_right⟩ := a1
     constructor
     · apply Exists.intro b
-      tauto
+      constructor
+      · exact a1_left_left_left
+      · exact a1_left_right
     · exact a1_right
 
 
-lemma Finset.image_sdiff_singleton_updateITE
+theorem Finset.image_sdiff_singleton_updateITE
   {α β : Type}
   [DecidableEq α]
   [DecidableEq β]
@@ -170,14 +179,17 @@ lemma Finset.image_sdiff_singleton_updateITE
   apply Finset.image_congr
   simp only [Set.EqOn]
   intro a a1
-  simp only [coe_sdiff, coe_singleton, Set.mem_diff, mem_coe, Set.mem_singleton_iff] at a1
+  simp only [coe_sdiff, coe_singleton, Set.mem_sdiff, mem_coe, Set.mem_singleton_iff] at a1
   obtain ⟨a1_left, a1_right⟩ := a1
   simp only [Function.updateITE]
-  split_ifs
-  rfl
+  split
+  case isTrue c1 =>
+    contradiction
+  case isFalse c1 =>
+    apply Eq.refl
 
 
-lemma Finset.image_congr_update_ite
+theorem Finset.image_congr_update_ite
   {α β : Type}
   [DecidableEq α]
   [DecidableEq β]
@@ -191,14 +203,17 @@ lemma Finset.image_congr_update_ite
   apply Finset.image_congr
   simp only [Set.EqOn]
   intro v a1
-  simp only [coe_sdiff, coe_singleton, Set.mem_diff, mem_coe, Set.mem_singleton_iff] at a1
+  simp only [coe_sdiff, coe_singleton, Set.mem_sdiff, mem_coe, Set.mem_singleton_iff] at a1
   obtain ⟨a1_left, a1_right⟩ := a1
   simp only [Function.updateITE]
-  split_ifs
-  rfl
+  split
+  case isTrue c1 =>
+    contradiction
+  case isFalse c1 =>
+    apply Eq.refl
 
 
-lemma Finset.mem_image_update
+theorem Finset.mem_image_update
   {α : Type}
   [DecidableEq α]
   (x y : α)
@@ -213,8 +228,8 @@ lemma Finset.mem_image_update
   constructor
   · exact h2
   · simp only [Function.updateITE]
-    split_ifs
-    rfl
-
-
-#lint
+    split
+    case isTrue c1 =>
+      contradiction
+    case isFalse c1 =>
+      apply Eq.refl

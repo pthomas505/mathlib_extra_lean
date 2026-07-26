@@ -1,7 +1,9 @@
 import MathlibExtraLean.FunctionUpdateITE
 
 
-set_option autoImplicit false
+set_option linter.style.docString false
+set_option linter.style.longLine false
+set_option linter.style.emptyLine false
 
 
 /--
@@ -41,13 +43,13 @@ theorem Function.updateFromPairOfListsITE_comp
   induction xs generalizing ys
   case nil =>
     unfold Function.updateFromPairOfListsITE
-    rfl
-  case cons _ xs_hd xs_tl xs_ih =>
+    apply Eq.refl
+  case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
       simp only [List.map_nil]
       unfold Function.updateFromPairOfListsITE
-      rfl
+      apply Eq.refl
     case cons ys_hd ys_tl =>
       simp only [List.map_cons]
       unfold Function.updateFromPairOfListsITE
@@ -69,7 +71,7 @@ theorem Function.updateFromPairOfListsITE_mem'
   case nil =>
     unfold Function.updateFromPairOfListsITE
     exact h1
-  case cons _ xs_hd xs_tl xs_ih =>
+  case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
       simp only [List.map_nil]
@@ -79,9 +81,11 @@ theorem Function.updateFromPairOfListsITE_mem'
       simp only [List.map_cons]
       unfold Function.updateFromPairOfListsITE
       unfold Function.updateITE
-      split_ifs
-      · rfl
-      · apply xs_ih
+      split
+      case isTrue c1 =>
+        apply Eq.refl
+      case isFalse c1 =>
+        apply xs_ih
 
 
 theorem Function.updateFromPairOfListsITE_mem_eq_len
@@ -111,13 +115,16 @@ theorem Function.updateFromPairOfListsITE_mem_eq_len
       unfold Function.updateITE
       cases h1
       case inl h1 =>
-        split_ifs
-        rfl
+        split
+        case isTrue c1 =>
+          apply Eq.refl
+        case isFalse c1 =>
+          contradiction
       case inr h1 =>
-        split_ifs
-        case pos =>
-          rfl
-        case neg c1 =>
+        split
+        case isTrue c1 =>
+          apply Eq.refl
+        case isFalse c1 =>
           simp only [List.length_cons] at h2
           simp only [Nat.succ.injEq] at h2
           apply xs_ih
@@ -152,10 +159,10 @@ theorem Function.updateFromPairOfListsITE_mem
 
       unfold Function.updateFromPairOfListsITE
       unfold Function.updateITE
-      split_ifs
-      case pos =>
-        rfl
-      case neg c1 =>
+      split
+      case isTrue c1 =>
+        apply Eq.refl
+      case isFalse c1 =>
         cases h1
         case inl c2 =>
           contradiction
@@ -177,24 +184,28 @@ theorem Function.updateFromPairOfListsITE_not_mem
   induction xs generalizing ys
   case nil =>
     unfold Function.updateFromPairOfListsITE
-    rfl
+    apply Eq.refl
   case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
       unfold Function.updateFromPairOfListsITE
-      rfl
+      apply Eq.refl
     case cons ys_hd ys_tl =>
       unfold Function.updateFromPairOfListsITE
       unfold Function.updateITE
-      split_ifs
-      case pos c1 =>
+      split
+      case isTrue c1 =>
         rewrite [c1]
         simp only [List.mem_cons] at h1
-        tauto
-      case neg c1 =>
+        rewrite [not_or] at h1
+        obtain ⟨h1_left, h1_right⟩ := h1
+        contradiction
+      case isFalse c1 =>
         simp only [List.mem_cons] at h1
         apply xs_ih
-        tauto
+        rewrite [not_or] at h1
+        obtain ⟨h1_left, h1_right⟩ := h1
+        exact h1_right
 
 
 theorem Function.updateFromPairOfListsITE_updateIte
@@ -213,22 +224,28 @@ theorem Function.updateFromPairOfListsITE_updateIte
   case nil =>
     unfold Function.updateFromPairOfListsITE
     unfold Function.updateITE
-    split_ifs
-    rfl
+    split
+    case isTrue c1 =>
+      contradiction
+    case isFalse c1 =>
+      apply Eq.refl
   case cons xs_hd xs_tl xs_ih =>
     cases ys
     case nil =>
       unfold Function.updateFromPairOfListsITE
       unfold Function.updateITE
-      split_ifs
-      rfl
+      split
+      case isTrue c1 =>
+        contradiction
+      case isFalse c1 =>
+        apply Eq.refl
     case cons ys_hd ys_tl =>
       unfold Function.updateFromPairOfListsITE
       unfold Function.updateITE
-      split_ifs
-      case pos c1 =>
-        rfl
-      case neg c1 =>
+      split
+      case isTrue c1 =>
+        apply Eq.refl
+      case isFalse c1 =>
         apply xs_ih
 
 
@@ -244,9 +261,10 @@ theorem Function.updateFromPairOfListsITE_fun_coincide_mem_eq_len
   Function.updateFromPairOfListsITE f xs (List.map f ys) x =
     Function.updateFromPairOfListsITE g xs (List.map g ys) x :=
   by
-  have s1 : List.map f ys = List.map g ys
-  simp only [List.map_eq_map_iff]
-  exact h1
+  have s1 : List.map f ys = List.map g ys :=
+  by
+    simp only [List.map_eq_map_iff]
+    exact h1
 
   rewrite [s1]
   apply Function.updateFromPairOfListsITE_mem_eq_len
@@ -267,9 +285,10 @@ theorem Function.updateFromPairOfListsITE_map_mem_ext
   Function.updateFromPairOfListsITE f xs (List.map h ys) x =
       Function.updateFromPairOfListsITE g xs (List.map h' ys) x :=
   by
-  have s1 : List.map h ys = List.map h' ys
-  simp only [List.map_eq_map_iff]
-  exact h1
+  have s1 : List.map h ys = List.map h' ys :=
+  by
+    simp only [List.map_eq_map_iff]
+    exact h1
 
   rewrite [s1]
   apply Function.updateFromPairOfListsITE_mem_eq_len
@@ -296,12 +315,17 @@ theorem Function.updateFromPairOfListsITE_map_mem
     simp only [List.map_cons]
     unfold Function.updateFromPairOfListsITE
     unfold Function.updateITE
-    split_ifs
-    case pos c1 =>
+    split
+    case isTrue c1 =>
       rewrite [c1]
-      rfl
-    case neg c1 =>
-      tauto
+      apply Eq.refl
+    case isFalse c1 =>
+      cases h1
+      case inl h1 =>
+        contradiction
+      case inr h1 =>
+        apply ih
+        exact h1
 
 
 theorem Function.updateFromPairOfListsITE_map_updateIte
@@ -321,14 +345,11 @@ theorem Function.updateFromPairOfListsITE_map_updateIte
   apply updateFromPairOfListsITE_map_mem_ext
   · intro y a1
     unfold Function.updateITE
-    split_ifs
-    case pos c1 =>
+    split
+    case isTrue c1 =>
       specialize h1 y a1
       contradiction
-    case neg c2 =>
-      rfl
+    case isFalse c2 =>
+      apply Eq.refl
   · exact h2
   · exact h3
-
-
-#lint

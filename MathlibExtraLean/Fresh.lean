@@ -2,7 +2,9 @@ import Mathlib.Tactic
 import Mathlib.Data.String.Lemmas
 
 
-set_option autoImplicit false
+set_option linter.style.docString false
+set_option linter.style.emptyLine false
+set_option linter.style.longLine false
 
 
 /--
@@ -13,7 +15,7 @@ def finset_string_max_len :
   Finset.fold (fun (m n : ℕ) => max m n) 0 String.length
 
 
-lemma finset_string_max_len_mem
+theorem finset_string_max_len_mem
   (x : String)
   (xs : Finset String)
   (h1 : x ∈ xs) :
@@ -60,7 +62,7 @@ def fresh
   termination_by (finset_string_max_len xs) + 1 - x.length
 
 
-lemma fresh_not_mem
+theorem fresh_not_mem
   (x : String)
   (c : Char)
   (xs : Finset String) :
@@ -74,13 +76,16 @@ lemma fresh_not_mem
     apply lt_add_one
   by
     unfold fresh
-    split_ifs
-    apply fresh_not_mem
+    split
+    case isTrue c1 =>
+      apply fresh_not_mem
+    case isFalse c1 =>
+      contradiction
   else by
     unfold fresh
-    split_ifs
-    exact h
+    split
+    case isTrue c1 =>
+      contradiction
+    case isFalse c1 =>
+      exact h
   termination_by (finset_string_max_len xs) + 1 - x.length
-
-
-#lint

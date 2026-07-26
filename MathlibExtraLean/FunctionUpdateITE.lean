@@ -1,7 +1,8 @@
 import Mathlib.Tactic
 
 
-set_option autoImplicit false
+set_option linter.style.docString false
+set_option linter.style.emptyLine false
 
 
 /--
@@ -39,7 +40,7 @@ def Function.updateITE'
 #eval Function.updateITE' (fun _ => 0) 5 10 5
 
 
-lemma Function.left_id_left_inverse
+theorem Function.left_id_left_inverse
   {α β : Type}
   (f : α → β)
   (g : β → α)
@@ -51,7 +52,7 @@ lemma Function.left_id_left_inverse
   exact congrFun h1 x
 
 
-lemma Function.right_id_right_inverse
+theorem Function.right_id_right_inverse
   {α β : Type}
   (f : α → β)
   (g : β → α)
@@ -65,7 +66,7 @@ lemma Function.right_id_right_inverse
 
 -- Function.updateITE
 
-lemma Function.updateITE_eq_Function.updateITE'
+theorem Function.updateITE_eq_Function.updateITE'
   {α β : Type}
   [DecidableEq α]
   (f : α → β)
@@ -77,17 +78,21 @@ lemma Function.updateITE_eq_Function.updateITE'
   funext x
   unfold Function.updateITE
   unfold Function.updateITE'
-  split_ifs
-  case pos c1 c2 =>
-    rfl
-  case neg c1 c2 =>
-    rewrite [c1] at c2
-    contradiction
-  case _ c1 c2 =>
-    rewrite [c2] at c1
-    contradiction
-  case _ c1 c2 =>
-    rfl
+  split
+  case isTrue c1 =>
+    split
+    case isTrue c2 =>
+      apply Eq.refl
+    case isFalse c2 =>
+      rewrite [c1] at c2
+      contradiction
+  case isFalse c1 =>
+    split
+    case isTrue c2 =>
+      rewrite [c2] at c1
+      contradiction
+    case isFalse c2 =>
+      apply Eq.refl
 
 
 theorem Function.updateITE_comp_left
@@ -103,9 +108,11 @@ theorem Function.updateITE_comp_left
   funext x
   simp only [comp_apply]
   unfold Function.updateITE
-  split_ifs
-  · rfl
-  · rfl
+  split
+  case isTrue c1 =>
+    apply Eq.refl
+  case isFalse c1 =>
+    simp only [comp_apply]
 
 
 theorem Function.updateITE_comp_right
@@ -132,7 +139,7 @@ theorem Function.updateITE_comp_right
     obtain s1 := Function.left_id_left_inverse f f_inv h1
     unfold Function.LeftInverse at s1
     rewrite [s1 x]
-    rfl
+    apply Eq.refl
   · intro a1
     rewrite [a1]
     obtain s1 := Function.right_id_right_inverse f f_inv h2
@@ -163,7 +170,7 @@ theorem Function.updateITE_comp_right_injective
   · apply h1
   · intro a1
     rewrite [a1]
-    rfl
+    apply Eq.refl
 
 
 theorem Function.updateITE_comm
@@ -178,13 +185,21 @@ theorem Function.updateITE_comm
   by
   funext x
   unfold Function.updateITE
-  split_ifs
-  case pos c1 c2 =>
-    rewrite [← c1] at h1
-    rewrite [← c2] at h1
-    contradiction
-  case neg | pos | neg =>
-    rfl
+  split
+  case isTrue c1 =>
+    split
+    case isTrue c2 =>
+      rewrite [← c1] at h1
+      rewrite [← c2] at h1
+      contradiction
+    case isFalse c2 =>
+      apply Eq.refl
+  case isFalse c1 =>
+    split
+    case isTrue c2 =>
+      apply Eq.refl
+    case isFalse c2 =>
+      apply Eq.refl
 
 
 theorem Function.updateITE_same
@@ -198,13 +213,13 @@ theorem Function.updateITE_same
   by
   funext x
   unfold Function.updateITE
-  split_ifs
-  case pos c1 =>
+  split
+  case isTrue c1 =>
     rewrite [c1]
     rewrite [h1]
-    rfl
-  case neg c1 =>
-    rfl
+    apply Eq.refl
+  case isFalse c1 =>
+    apply Eq.refl
 
 
 theorem Function.updateITE_idem
@@ -218,9 +233,11 @@ theorem Function.updateITE_idem
   by
   funext x
   unfold Function.updateITE
-  split_ifs
-  · rfl
-  · rfl
+  split
+  case isTrue c1 =>
+    apply Eq.refl
+  case isFalse c1 =>
+    apply Eq.refl
 
 
 theorem Function.updateITE_id
@@ -231,13 +248,13 @@ theorem Function.updateITE_id
   by
   funext x
   unfold Function.updateITE
-  split_ifs
-  case pos c1 =>
+  split
+  case isTrue c1 =>
     rewrite [c1]
     unfold id
-    rfl
-  case neg c1 =>
-    rfl
+    apply Eq.refl
+  case isFalse c1 =>
+    apply Eq.refl
 
 
 theorem Function.updateITE_comm_id
@@ -251,18 +268,22 @@ theorem Function.updateITE_comm_id
   funext x
   unfold Function.updateITE
   unfold id
-  split_ifs
-  case pos c1 c2 =>
-    rewrite [← c1] at h1
-    rewrite [← c2] at h1
-    contradiction
-  case neg c1 c2 =>
-    rewrite [c1]
-    rfl
-  case pos c1 c2 =>
-    rfl
-  case neg c1 c2 =>
-    rfl
+  split
+  case isTrue c1 =>
+    split
+    case isTrue c2 =>
+      rewrite [← c1] at h1
+      rewrite [← c2] at h1
+      contradiction
+    case isFalse c2 =>
+      rewrite [c1]
+      apply Eq.refl
+  case isFalse c1 =>
+    split
+    case isTrue c2 =>
+      apply Eq.refl
+    case isFalse c2 =>
+      apply Eq.refl
 
 
 theorem Function.updateITE_coincide
@@ -275,11 +296,11 @@ theorem Function.updateITE_coincide
   by
   funext x
   unfold Function.updateITE
-  split_ifs
-  case pos c1 =>
+  split
+  case isTrue c1 =>
     rewrite [c1]
-    rfl
-  case neg c1 =>
+    apply Eq.refl
+  case isFalse c1 =>
     apply h1
     exact c1
 
@@ -305,12 +326,12 @@ theorem Function.updateITE_not_mem_list
     simp only [List.map_cons, List.cons.injEq]
     constructor
     · unfold Function.updateITE
-      split_ifs
-      case pos c1 =>
+      split
+      case isTrue c1 =>
         rewrite [c1] at h1_left
         contradiction
-      case neg c1 =>
-        rfl
+      case isFalse c1 =>
+        apply Eq.refl
     · apply ih
       exact h1_right
 
@@ -338,12 +359,12 @@ theorem Function.updateITE_not_mem_set
     simp only [Finset.image_insert]
     congr! 1
     · unfold Function.updateITE
-      split_ifs
-      case pos c1 =>
+      split
+      case isTrue c1 =>
         rewrite [c1] at h1_left
         contradiction
-      case neg c1 =>
-        rfl
+      case isFalse c1 =>
+        apply Eq.refl
     · exact ih_2 h1_right
 
 
@@ -359,20 +380,24 @@ theorem Function.updateITE_symm
   by
   funext x
   unfold Function.updateITE
-  split_ifs
-  case pos c1 c2 =>
-    rewrite [← c1] at h1
-    rewrite [← c2] at h1
-    contradiction
-  case neg c1 c2 =>
-    rfl
-  case pos c1 c2 =>
-    rfl
-  case neg c1 c2 =>
-    rfl
+  split
+  case isTrue c1 =>
+    split
+    case isTrue c2 =>
+      rewrite [← c1] at h1
+      rewrite [← c2] at h1
+      contradiction
+    case isFalse c2 =>
+      apply Eq.refl
+  case isFalse c1 =>
+    split
+    case isTrue c2 =>
+      apply Eq.refl
+    case isFalse c2 =>
+      apply Eq.refl
 
 
-lemma Function.updateITE_comp
+theorem Function.updateITE_comp
   {α β : Type}
   [DecidableEq α]
   (a b c : α)
@@ -383,17 +408,18 @@ lemma Function.updateITE_comp
   Function.updateITE g c d (Function.updateITE f b c a) = Function.updateITE (g ∘ f) b d a :=
   by
   unfold Function.updateITE
-  split_ifs
-  case pos c1 c2 =>
-    rfl
-  case neg c1 c2 =>
-    contradiction
-  case pos c1 c2 =>
-    simp only [comp_apply]
-    apply h1
-    exact c2
-  case neg c1 c2 =>
-    simp only [comp_apply]
-
-
-#lint
+  split
+  case isTrue c1 =>
+    split
+    case isTrue c2 =>
+      apply Eq.refl
+    case isFalse c2 =>
+      contradiction
+  case isFalse c1 =>
+    split
+    case isTrue c2 =>
+      simp only [comp_apply]
+      apply h1
+      exact c2
+    case isFalse c2 =>
+      simp only [comp_apply]

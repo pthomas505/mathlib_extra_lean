@@ -1,10 +1,12 @@
 import MathlibExtraLean.FunctionUpdateITE
 
 
-set_option autoImplicit false
+set_option linter.style.emptyLine false
+set_option linter.style.docString false
+set_option linter.style.longLine false
 
 
-lemma List.map_eq_self_imp_fun_is_id_on_mem
+theorem List.map_eq_self_imp_fun_is_id_on_mem
   {α : Type}
   (f : α → α)
   (xs : List α)
@@ -21,20 +23,20 @@ lemma List.map_eq_self_imp_fun_is_id_on_mem
 
     simp only [mem_cons] at a1
     cases a1
-    case inl a1_left =>
-      rewrite [a1_left]
+    case inl a1 =>
+      rewrite [a1]
       exact h1_left
-    case inr a1_right =>
+    case inr a1 =>
       apply ih
       · exact h1_right
-      · exact a1_right
+      · exact a1
 
 
-lemma List.fun_is_id_on_mem_imp_map_eq_self
+theorem List.fun_is_id_on_mem_imp_map_eq_self
   {α : Type}
   (f : α → α)
-  (xs: List α)
-  (h1: ∀ (x : α), x ∈ xs → f x = x) :
+  (xs : List α)
+  (h1 : ∀ (x : α), x ∈ xs → f x = x) :
   xs.map f = xs :=
   by
   induction xs
@@ -47,7 +49,7 @@ lemma List.fun_is_id_on_mem_imp_map_eq_self
     constructor
     · apply h1
       left
-      rfl
+      apply Eq.refl
     · apply ih
       intro x a1
       apply h1
@@ -87,12 +89,12 @@ example
   · by_cases x2_a : x2 = a
     · rewrite [x1_a]
       rewrite [x2_a]
-      rfl
+      apply Eq.refl
     · by_cases x1_b : x1 = b
       · by_cases x2_b : x2 = b
         · rewrite [x1_b]
           rewrite [x2_b]
-          rfl
+          apply Eq.refl
         · have s1 : f x2 = g x2 :=
           by
             apply h3
@@ -104,7 +106,7 @@ example
           rewrite [← x1_b]
           rewrite [a1]
           rewrite [← s1]
-          rfl
+          apply Eq.refl
       · by_cases x2_b : x2 = b
         · apply h1
           rewrite [x1_a]
@@ -114,7 +116,7 @@ example
           rewrite [← h2_left]
           rewrite [a1]
           rewrite [← h2_right]
-          rfl
+          apply Eq.refl
         · have s1 : f x2 = g x2 :=
           by
             apply h3
@@ -165,7 +167,7 @@ example
       · by_cases x2_b : x2 = b
         · rewrite [x1_b]
           rewrite [x2_b]
-          rfl
+          apply Eq.refl
         · have s1 : f x2 = g x2 :=
           by
             apply h3
@@ -217,15 +219,16 @@ def List.InjOn
   Prop := ∀ ⦃x₁ : α⦄, x₁ ∈ xs → ∀ ⦃x₂ : α⦄, x₂ ∈ xs → f x₁ = f x₂ → x₁ = x₂
 
 
-lemma List.nodup_eq_len_imp_exists_bijon
+theorem List.nodup_eq_len_imp_exists_bijon
   {α : Type}
-  [DecidableEq α]
+  -- [DecidableEq α]
   (xs ys : List α)
   (h1 : xs.length = ys.length)
   (h2 : xs.Nodup)
   (h3 : ys.Nodup) :
   ∃ (f : α → α), List.InjOn f xs ∧ xs.map f = ys :=
   by
+  classical
   induction xs generalizing ys
   case nil =>
     apply Exists.intro id
@@ -267,51 +270,55 @@ lemma List.nodup_eq_len_imp_exists_bijon
         simp only [mem_cons] at x2_mem
 
         unfold Function.updateITE
-        split_ifs
-        case pos c1 c2 =>
-          intro _
-          rewrite [c1]
-          rewrite [c2]
-          rfl
-        case _ c1 c2 =>
-          intro a2
-          cases x2_mem
-          case inl c3 =>
-            contradiction
-          case inr c3 =>
-            obtain s1 := List.mem_map_of_mem c3
-            rewrite [a1_right] at s1
-            rewrite [← a2] at s1
-            contradiction
-        case _ c1 c2 =>
-          intro a2
-          cases x1_mem
-          case inl c3 =>
-            contradiction
-          case inr c3 =>
-            obtain s1 := List.mem_map_of_mem c3
-            rewrite [a1_right] at s1
-            rewrite [a2] at s1
-            contradiction
-        case _ c1 c2 =>
-          intro a2
-          cases x1_mem
-          case inl x1_mem_left =>
-            contradiction
-          case inr x1_mem_right =>
+        split
+        case isTrue c1 =>
+          split
+          case isTrue c2 =>
+            intro _
+            rewrite [c1]
+            rewrite [c2]
+            apply Eq.refl
+          case isFalse c2 =>
+            intro a2
             cases x2_mem
-            case inl x2_mem_left =>
+            case inl x2_mem =>
               contradiction
-            case inr x2_mem_right =>
-              unfold List.InjOn at a1_left
-              exact a1_left x1_mem_right x2_mem_right a2
+            case inr x2_mem =>
+              obtain s1 := List.mem_map_of_mem x2_mem
+              rewrite [a1_right] at s1
+              rewrite [← a2] at s1
+              contradiction
+        case isFalse c1 =>
+          split
+          case isTrue c2 =>
+            intro a2
+            cases x1_mem
+            case inl x1_mem =>
+              contradiction
+            case inr x1_mem =>
+              obtain s1 := List.mem_map_of_mem x1_mem
+              rewrite [a1_right] at s1
+              rewrite [a2] at s1
+              contradiction
+          case isFalse c2 =>
+            intro a2
+            cases x1_mem
+            case inl x1_mem =>
+              contradiction
+            case inr x1_mem =>
+              cases x2_mem
+              case inl x2_mem =>
+                contradiction
+              case inr x2_mem =>
+                unfold List.InjOn at a1_left
+                exact a1_left x1_mem x2_mem a2
       · simp only [map_cons, cons.injEq]
         constructor
         · unfold Function.updateITE
-          split_ifs
-          case pos c1 =>
-            rfl
-          case neg c1 =>
+          split
+          case isTrue c1 =>
+            apply Eq.refl
+          case isFalse c1 =>
             contradiction
         · rewrite [← a1_right]
           apply Function.updateITE_not_mem_list
@@ -320,7 +327,7 @@ lemma List.nodup_eq_len_imp_exists_bijon
 
 theorem nodup_eq_len_imp_eqv
   {α : Type}
-  [DecidableEq α]
+  -- [DecidableEq α]
   (xs ys : List α)
   (h1 : xs.length = ys.length)
   (h2 : xs.Nodup)
@@ -332,7 +339,7 @@ theorem nodup_eq_len_imp_eqv
 -------------------------------------------------------------------------------
 
 
-lemma List.foldr_cons_append_init
+theorem List.foldr_cons_append_init
   {α β : Type}
   (f : α → β)
   (xs_left xs_right : List β)
@@ -346,10 +353,10 @@ lemma List.foldr_cons_append_init
   case cons hd tl ih =>
     simp only [List.foldr_cons, List.cons_append]
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
-lemma List.length_eq_and_mem_zip_imp_fun_eq_imp_map_eq
+theorem List.length_eq_and_mem_zip_imp_fun_eq_imp_map_eq
   {α β γ : Type}
   (f : α → γ)
   (g : β → γ)
@@ -382,7 +389,7 @@ lemma List.length_eq_and_mem_zip_imp_fun_eq_imp_map_eq
       · specialize h2 (xs_hd, ys_hd)
         apply h2
         left
-        rfl
+        apply Eq.refl
       · apply xs_ih
         · exact h1
         · intro p a1
@@ -391,7 +398,7 @@ lemma List.length_eq_and_mem_zip_imp_fun_eq_imp_map_eq
           exact a1
 
 
-lemma List.mem_zip_filter_and_pred_eq_all_mem_zip_imp_mem_zip
+theorem List.mem_zip_filter_and_pred_eq_all_mem_zip_imp_mem_zip
   {α : Type}
   (xs ys : List α)
   (pred : α → Bool)
@@ -413,14 +420,45 @@ lemma List.mem_zip_filter_and_pred_eq_all_mem_zip_imp_mem_zip
       simp only [List.zip_cons_cons, List.mem_cons] at h2
 
       simp only [List.zip_cons_cons, List.mem_cons]
-      split_ifs at h1
-      case pos c1 c2 =>
-        simp only [List.zip_cons_cons, List.mem_cons] at h1
-        cases h1
-        case inl h1 =>
+      split at h1
+      case isTrue c1 =>
+        split at h1
+        case isTrue c2 =>
+          simp only [List.zip_cons_cons, List.mem_cons] at h1
+          cases h1
+          case inl h1 =>
+            left
+            exact h1
+          case inr h1 =>
+            right
+            apply xs_ih
+            · exact h1
+            · intro q a1
+              apply h2
+              right
+              exact a1
+        case isFalse c2 =>
+          exfalso
+          apply c2
+          rewrite [← c1]
+          specialize h2 (xs_hd, ys_hd)
+          simp only at h2
+          rewrite [← h2]
+          · apply Eq.refl
+          · left
+            exact trivial
+      case isFalse c1 =>
+        split at h1
+        case isTrue c2 =>
+          exfalso
+          apply c1
+          rewrite [← c2]
+          specialize h2 (xs_hd, ys_hd)
+          simp only at h2
+          apply h2
           left
-          exact h1
-        case inr h1 =>
+          exact trivial
+        case isFalse c2 =>
           right
           apply xs_ih
           · exact h1
@@ -428,36 +466,9 @@ lemma List.mem_zip_filter_and_pred_eq_all_mem_zip_imp_mem_zip
             apply h2
             right
             exact a1
-      case neg c1 c2 =>
-        exfalso
-        apply c2
-        rewrite [← c1]
-        specialize h2 (xs_hd, ys_hd)
-        simp only at h2
-        rewrite [← h2]
-        · rfl
-        · left
-          exact trivial
-      case pos c1 c2 =>
-        exfalso
-        apply c1
-        rewrite [← c2]
-        specialize h2 (xs_hd, ys_hd)
-        simp only at h2
-        apply h2
-        left
-        exact trivial
-      case neg c1 c2 =>
-        right
-        apply xs_ih
-        · exact h1
-        · intro q a1
-          apply h2
-          right
-          exact a1
 
 
-lemma List.pred_eq_all_mem_zip_imp_filter_length_eq
+theorem List.pred_eq_all_mem_zip_imp_filter_length_eq
   {α : Type}
   (xs ys : List α)
   (pred : α → Bool)
@@ -484,44 +495,48 @@ lemma List.pred_eq_all_mem_zip_imp_filter_length_eq
       simp only [List.zip_cons_cons, List.mem_cons] at h2
 
       simp only [List.filter_cons]
-      split_ifs
-      case pos c1 c2 =>
-        simp only [List.length_cons, add_left_inj]
-        apply xs_ih
-        · exact h1
-        · intro p a1
+      split
+      case isTrue c1 =>
+        split
+        case isTrue c2 =>
+          simp only [List.length_cons, add_left_inj]
+          apply xs_ih
+          · exact h1
+          · intro p a1
+            apply h2
+            right
+            exact a1
+        case isFalse c2 =>
+          exfalso
+          apply c2
+          rewrite [← c1]
+          specialize h2 (xs_hd, ys_hd)
+          simp only at h2
+          rewrite [← h2]
+          · rfl
+          · left
+            exact trivial
+      case isFalse c1 =>
+        split
+        case isTrue c2 =>
+          exfalso
+          apply c1
+          rewrite [← c2]
+          specialize h2 (xs_hd, ys_hd)
+          simp only at h2
           apply h2
-          right
-          exact a1
-      case neg c1 c2 =>
-        exfalso
-        apply c2
-        rewrite [← c1]
-        specialize h2 (xs_hd, ys_hd)
-        simp only at h2
-        rewrite [← h2]
-        · rfl
-        · left
+          left
           exact trivial
-      case pos c1 c2 =>
-        exfalso
-        apply c1
-        rewrite [← c2]
-        specialize h2 (xs_hd, ys_hd)
-        simp only at h2
-        apply h2
-        left
-        exact trivial
-      case neg c1 c2 =>
-        apply xs_ih
-        · exact h1
-        · intro p a1
-          apply h2
-          right
-          exact a1
+        case isFalse c2 =>
+          apply xs_ih
+          · exact h1
+          · intro p a1
+            apply h2
+            right
+            exact a1
 
 
-lemma List.map_union
+theorem List.map_union
   {α β : Type}
   [DecidableEq α]
   [DecidableEq β]
@@ -546,19 +561,19 @@ lemma List.map_union
       exact h1
 
     simp only [s1]
-    split_ifs
-    case pos c1 =>
-      rfl
-    case neg c1 =>
+    split
+    case isTrue c1 =>
+      apply Eq.refl
+    case isFalse c1 =>
       simp only [List.map_cons]
 
 
 -------------------------------------------------------------------------------
 
 
-lemma List.exists_maximal_subset
+theorem List.exists_maximal_subset
   {α : Type}
-  [DecidableEq α]
+  -- [DecidableEq α]
   (ll : List (List α))
   (h1 : ¬ ll = []) :
   ∃ (xs : List α), xs ∈ ll ∧
@@ -589,7 +604,7 @@ lemma List.exists_maximal_subset
         apply Exists.intro hd
         constructor
         · left
-          rfl
+          apply Eq.refl
         · intro ys a1
           obtain ⟨a1_left, a1_right⟩ := a1
           cases a1_left
@@ -622,9 +637,9 @@ lemma List.exists_maximal_subset
             exact ⟨a1_left, a1_right⟩
 
 
-lemma List.exists_minimal_subset
+theorem List.exists_minimal_subset
   {α : Type}
-  [DecidableEq α]
+  -- [DecidableEq α]
   (ll : List (List α))
   (h1 : ¬ ll = []) :
   ∃ (xs : List α), xs ∈ ll ∧
@@ -655,7 +670,7 @@ lemma List.exists_minimal_subset
         apply Exists.intro hd
         constructor
         · left
-          rfl
+          apply Eq.refl
         · intro ys a1
           obtain ⟨a1_left, a1_right⟩ := a1
           cases a1_left
@@ -688,15 +703,16 @@ lemma List.exists_minimal_subset
             exact ⟨a1_left, a1_right⟩
 
 
-lemma List.exists_minimal_subset_of_mem
+theorem List.exists_minimal_subset_of_mem
   {α : Type}
-  [DecidableEq α]
+  -- [DecidableEq α]
   (ll : List (List α))
   (l : List α)
   (h1 : l ∈ ll) :
   ∃ (xs : List α), xs ∈ ll ∧ xs ⊆ l ∧
     ∀ (ys : List α), (ys ∈ ll ∧ ys ⊆ xs) → xs ⊆ ys :=
   by
+  classical
   let ll' : List (List α) := List.filter (fun (l' : List α) => l' ⊆ l) ll
 
   have s1 : l ∈ ll' :=
@@ -768,7 +784,7 @@ example
       simp only [List.append_assoc, List.cons_append]
 
 
-lemma List.exists_mem_imp_exists_leftmost_mem
+theorem List.exists_mem_imp_exists_leftmost_mem
   {α : Type}
   (l : List α)
   (f : α → Prop)
@@ -797,22 +813,22 @@ lemma List.exists_mem_imp_exists_leftmost_mem
       apply Exists.intro tl
       constructor
       · constructor
-        · rfl
-        · rfl
+        · apply Eq.refl
+        · apply Eq.refl
       · constructor
         · exact c1
         · intro a a1
           simp only [not_mem_nil] at a1
     case neg =>
       cases h1_left
-      case inl h1_left_left =>
-        rewrite [h1_left_left] at h1_right
+      case inl h1_left =>
+        rewrite [h1_left] at h1_right
         contradiction
-      case inr h1_left_right =>
+      case inr h1_left =>
         have s1 : ∃ x ∈ tl, f x :=
         by
           apply Exists.intro x
-          exact ⟨h1_left_right, h1_right⟩
+          exact ⟨h1_left, h1_right⟩
         specialize ih s1
 
         obtain ⟨ll, y, rl, a1, a2, a3⟩ := ih
@@ -828,15 +844,15 @@ lemma List.exists_mem_imp_exists_leftmost_mem
           · intro a a4
             simp only [mem_cons] at a4
             cases a4
-            case inl h4_left =>
-              rewrite [h4_left]
+            case inl a4 =>
+              rewrite [a4]
               exact c1
-            case inr h4_right =>
+            case inr a4 =>
               apply a3
-              exact h4_right
+              exact a4
 
 
-lemma List.exists_mem_imp_exists_rightmost_mem
+theorem List.exists_mem_imp_exists_rightmost_mem
   {α : Type}
   (l : List α)
   (f : α → Prop)
@@ -870,14 +886,14 @@ lemma List.exists_mem_imp_exists_rightmost_mem
       · exact ⟨a2, a3⟩
     case neg =>
       cases h1_left
-      case inl h1_left_left =>
+      case inl h1_left =>
         apply Exists.intro []
         apply Exists.intro hd
         apply Exists.intro tl
         constructor
         · simp only [nil_append]
         · constructor
-          · rewrite [← h1_left_left]
+          · rewrite [← h1_left]
             exact h1_right
           · intro a a1 contra
             apply c1
@@ -899,15 +915,15 @@ protected def append : (xs ys : List α) → List α
 -/
 
 
-lemma List.length_nil_
+theorem List.length_nil_
   {α : Type} :
   ([] : List α).length = 0 :=
   by
   unfold List.length
-  rfl
+  apply Eq.refl
 
 
-lemma List.length_cons_
+theorem List.length_cons_
   {α : Type}
   (a : α)
   (as : List α) :
@@ -917,25 +933,25 @@ lemma List.length_cons_
   case nil =>
     unfold List.length
     rewrite [List.length_nil_]
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     unfold List.length
     specialize ih hd
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
-lemma List.nil_append_
+theorem List.nil_append_
   {α : Type}
   (as : List α) :
   [] ++ as = as :=
   by
   unfold_projs
   unfold List.append
-  rfl
+  apply Eq.refl
 
 
-lemma List.cons_append_
+theorem List.cons_append_
   {α : Type}
   (a : α)
   (as bs : List α) :
@@ -947,7 +963,7 @@ lemma List.cons_append_
     unfold List.append
 
 
-lemma List.append_nil_
+theorem List.append_nil_
   {α : Type}
   (as : List α) :
   as ++ [] = as :=
@@ -956,14 +972,14 @@ lemma List.append_nil_
   case nil =>
     unfold_projs
     unfold List.append
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     rewrite [List.cons_append_]
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
-lemma List.length_append_
+theorem List.length_append_
   {α : Type}
   (as bs : List α) :
   (as ++ bs).length = as.length + bs.length :=
@@ -975,7 +991,7 @@ lemma List.length_append_
     rewrite [Nat.add_comm]
     unfold_projs
     unfold Nat.add
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     simp only [cons_append_, length_cons_]
     rewrite [ih]
@@ -995,7 +1011,7 @@ example
   exact List.append_right_inj l1
 
 
-lemma lreseq
+theorem lreseq
   (α : Type)
   (l1 l2 : List α)
   (x y : α) :
@@ -1010,7 +1026,7 @@ lemma lreseq
       constructor
       · exact a1_left
       · constructor
-        · rfl
+        · apply Eq.refl
         · exact a1_right
     case cons hd tl =>
       simp only [List.cons_append, List.append_assoc, List.cons.injEq, List.append_eq_nil_iff, List.nil_append] at a1
@@ -1023,10 +1039,10 @@ lemma lreseq
     rewrite [a1_right_right]
     simp only [List.nil_append]
     rewrite [a1_left]
-    rfl
+    apply Eq.refl
 
 
-lemma rgr_r9
+theorem rgr_r9
   {α : Type}
   (r : List α)
   (sym : α)
@@ -1039,13 +1055,13 @@ lemma rgr_r9
   case cons hd tl ih =>
     simp only [List.mem_cons] at h1
     cases h1
-    case inl h1_left =>
-      rewrite [h1_left]
+    case inl h1 =>
+      rewrite [h1]
       apply Exists.intro []
       apply Exists.intro tl
       simp only [List.nil_append, List.singleton_append]
-    case inr h1_right =>
-      specialize ih h1_right
+    case inr h1 =>
+      specialize ih h1
       obtain ⟨r1, r2, a1⟩ := ih
       apply Exists.intro (hd :: r1)
       apply Exists.intro r2
@@ -1053,7 +1069,7 @@ lemma rgr_r9
       simp only [List.append_assoc, List.cons_append]
 
 
-lemma rgr_r9b
+theorem rgr_r9b
   {α : Type}
   (r : List α)
   (sym : α)
@@ -1068,7 +1084,7 @@ lemma rgr_r9b
   exact trivial
 
 
-lemma rgr_r9eq
+theorem rgr_r9eq
   {α : Type}
   (r : List α)
   (sym : α) :
@@ -1081,7 +1097,7 @@ lemma rgr_r9eq
     exact rgr_r9b r sym a1
 
 
-lemma list_r1
+theorem list_r1
   {α : Type}
   (v v' : List α)
   (x : α)
@@ -1094,7 +1110,7 @@ lemma list_r1
   exact trivial
 
 
-lemma append_eq_singleton
+theorem append_eq_singleton
   {α : Type}
   (l1 l2 : List α)
   (e : α) :
@@ -1103,13 +1119,39 @@ lemma append_eq_singleton
   cases l1
   case nil =>
     simp only [List.nil_append]
-    tauto
+    constructor
+    · intro a1
+      right
+      constructor
+      · exact True.intro
+      · exact a1
+    · intro a1
+      cases a1
+      case inl a1 =>
+        obtain ⟨a1_left, a1_right⟩ := a1
+        rewrite [a1_right]
+        exact a1_left
+      case inr a1 =>
+        obtain ⟨a1_left, a1_right⟩ := a1
+        exact a1_right
   case cons hd tl =>
     simp only [List.cons_append, List.cons.injEq, List.append_eq_nil_iff]
-    tauto
+    constructor
+    · intro a1
+      obtain ⟨a1_left, ⟨a1_right_left, a1_right_right⟩⟩ := a1
+      left
+      exact ⟨⟨a1_left, a1_right_left⟩, a1_right_right⟩
+    · intro a1
+      cases a1
+      case inl a1 =>
+        obtain ⟨⟨a1_left_left, a1_left_right⟩, a1_right_right⟩ := a1
+        exact ⟨a1_left_left, ⟨a1_left_right, a1_right_right⟩⟩
+      case inr a1 =>
+        obtain ⟨a1_left, a1_right⟩ := a1
+        contradiction
 
 
-lemma list_r2
+theorem list_r2
   {α : Type}
   (sl_1 sl_2 rhs : List α)
   (x : α)
@@ -1119,13 +1161,17 @@ lemma list_r2
   by
   simp only [append_eq_singleton] at h1
   cases h1
-  case inl h1_left =>
-    tauto
-  case inr h1_right =>
-    obtain ⟨h1_right_left, h1_right_right⟩ := h1_right
-    simp only [List.append_eq_nil_iff] at h1_right_left
-    obtain ⟨h1_right_left_left, h1_right_right_right⟩ := h1_right_left
+  case inl h1 =>
+    obtain ⟨h1_left, h1_right⟩ := h1
+    cases h1_left
+    case inl h1_left =>
+      obtain ⟨h1_left_left, h1_left_right⟩ := h1_left
+      contradiction
+    case inr h1_left =>
+      obtain ⟨h1_left_left, h1_left_right⟩ := h1_left
+      exact ⟨h1_left_left, h1_right⟩
+  case inr h1 =>
+    obtain ⟨h1_left, h1_right⟩ := h1
+    simp only [List.append_eq_nil_iff] at h1_left
+    obtain ⟨h1_left_left, h1_left_right⟩ := h1_left
     contradiction
-
-
-#lint

@@ -1,7 +1,7 @@
 import MathlibExtraLean.FunctionUpdateITE
 
 
-set_option autoImplicit false
+set_option linter.style.emptyLine false
 
 
 def Function.updateFromListOfPairsITE
@@ -58,7 +58,7 @@ example
     unfold Function.updateFromListOfPairsITE_foldr
     simp only [List.foldr_cons]
     rewrite [ih]
-    rfl
+    apply Eq.refl
 
 
 -------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ example
   induction l
   case nil =>
     unfold Function.updateFromListOfPairsITE
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     simp only [List.map_cons, List.mem_cons] at h1
     simp only [not_or] at h1
@@ -84,9 +84,12 @@ example
 
     unfold Function.updateFromListOfPairsITE
     unfold Function.updateITE
-    split_ifs
-    apply ih
-    exact h1_right
+    split
+    case isTrue c1 =>
+      contradiction
+    case isFalse c1 =>
+      apply ih
+      exact h1_right
 
 
 example
@@ -112,22 +115,22 @@ example
     unfold Function.updateITE
     by_cases c1 : (a, b) = hd
     case pos =>
-      split_ifs
-      case pos c2 =>
+      split
+      case isTrue c2 =>
         rewrite [← c1]
         simp only
-      case neg c2 =>
+      case isFalse c2 =>
         rewrite [← c1] at c2
         simp only at c2
         contradiction
     case neg =>
-      split_ifs
-      case pos c2 =>
+      split
+      case isTrue c2 =>
         apply h2
         left
         rewrite [c2]
         simp only [Prod.mk.eta]
-      case neg c2 =>
+      case isFalse c2 =>
         apply ih
         · cases h1
           case inl h1_left =>
@@ -152,7 +155,7 @@ def Function.toListOfPairs
   l.map (fun (x : α) => (x, f x))
 
 
-lemma updateFromListOfPairsITE_of_toListOfPairs_not_mem
+theorem updateFromListOfPairsITE_of_toListOfPairs_not_mem
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
@@ -167,7 +170,7 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_not_mem
     unfold Function.toListOfPairs
     simp only [List.map_nil]
     unfold Function.updateFromListOfPairsITE
-    rfl
+    apply Eq.refl
   case cons hd tl ih =>
     unfold Function.toListOfPairs at ih
 
@@ -180,12 +183,15 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_not_mem
     unfold Function.updateFromListOfPairsITE
     simp only
     unfold Function.updateITE
-    split_ifs
-    apply ih
-    exact h1_right
+    split
+    case isTrue c1 =>
+      contradiction
+    case isFalse c1 =>
+      apply ih
+      exact h1_right
 
 
-lemma updateFromListOfPairsITE_of_toListOfPairs_mem
+theorem updateFromListOfPairsITE_of_toListOfPairs_mem
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
@@ -208,11 +214,11 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_mem
     unfold Function.updateFromListOfPairsITE
     simp only
     unfold Function.updateITE
-    split_ifs
-    case pos c1 =>
+    split
+    case isTrue c1 =>
       rewrite [c1]
-      rfl
-    case neg c1 =>
+      apply Eq.refl
+    case isFalse c1 =>
       apply ih
       cases h1
       case inl c2 =>
@@ -224,7 +230,7 @@ lemma updateFromListOfPairsITE_of_toListOfPairs_mem
 -------------------------------------------------------------------------------
 
 
-lemma all_not_mem_are_init_imp_updateFromListOfPairsITE_of_toListOfPairs
+theorem all_not_mem_are_init_imp_updateFromListOfPairsITE_of_toListOfPairs
   {α β : Type}
   [DecidableEq α]
   (init : α → β)
@@ -245,7 +251,7 @@ lemma all_not_mem_are_init_imp_updateFromListOfPairsITE_of_toListOfPairs
     exact c1
 
 
-lemma updateFromListOfPairsITE_of_toListOfPairs_imp_all_not_mem_are_init
+theorem updateFromListOfPairsITE_of_toListOfPairs_imp_all_not_mem_are_init
   {α β : Type}
   [DecidableEq α]
   (init : α → β)

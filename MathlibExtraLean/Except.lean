@@ -1,9 +1,6 @@
 import Mathlib.Tactic
 
 
-set_option autoImplicit false
-
-
 theorem Except.bind_eq_ok
   {ε α β : Type}
   (x : Except ε α)
@@ -26,7 +23,7 @@ theorem Except.bind_eq_ok
     · intro a1
       apply Exists.intro x
       constructor
-      · rfl
+      · apply Eq.refl
       · exact a1
     · intro a1
       obtain ⟨b, ⟨a1_left, a1_right⟩⟩ := a1
