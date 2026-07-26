@@ -164,11 +164,11 @@ theorem Function.updateFromPairOfListsITE_mem
         apply Eq.refl
       case isFalse c1 =>
         cases h1
-        case inl c2 =>
+        case inl h1 =>
           contradiction
-        case inr c2 =>
+        case inr h1 =>
           apply xs_ih
-          exact c2
+          exact h1
 
 
 theorem Function.updateFromPairOfListsITE_not_mem

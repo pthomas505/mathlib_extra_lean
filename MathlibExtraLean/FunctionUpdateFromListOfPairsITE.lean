@@ -133,10 +133,10 @@ example
       case isFalse c2 =>
         apply ih
         · cases h1
-          case inl h1_left =>
+          case inl h1 =>
             contradiction
-          case inr h1_right =>
-            exact h1_right
+          case inr h1 =>
+            exact h1
         · intro b' a1
           apply h2
           right
@@ -221,10 +221,10 @@ theorem updateFromListOfPairsITE_of_toListOfPairs_mem
     case isFalse c1 =>
       apply ih
       cases h1
-      case inl c2 =>
+      case inl h1 =>
         contradiction
-      case inr c2 =>
-        exact c2
+      case inr h1 =>
+        exact h1
 
 
 -------------------------------------------------------------------------------

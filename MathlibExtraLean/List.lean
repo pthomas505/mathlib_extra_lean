@@ -899,11 +899,11 @@ theorem List.exists_mem_imp_exists_rightmost_mem
             apply c1
             apply Exists.intro a
             exact ⟨a1, contra⟩
-      case inr h1_left_right =>
+      case inr h1_left =>
         exfalso
         apply c1
         apply Exists.intro x
-        exact ⟨h1_left_right, h1_right⟩
+        exact ⟨h1_left, h1_right⟩
 
 
 -------------------------------------------------------------------------------

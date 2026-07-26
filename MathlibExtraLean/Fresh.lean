@@ -28,18 +28,18 @@ theorem finset_string_max_len_mem
     simp only [Finset.mem_insert] at h1
 
     cases h1
-    case inl c1 =>
-      rewrite [c1]
+    case inl h1 =>
+      rewrite [h1]
       unfold finset_string_max_len
       simp only [Finset.fold_insert_idem, le_sup_left]
-    case inr c1 =>
+    case inr h1 =>
       simp only [finset_string_max_len] at ih
 
       simp only [finset_string_max_len]
       simp only [Finset.fold_insert_idem, le_sup_iff]
       right
       apply ih
-      exact c1
+      exact h1
 
 
 /--
