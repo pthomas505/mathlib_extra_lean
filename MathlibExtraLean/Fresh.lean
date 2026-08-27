@@ -21,25 +21,25 @@ theorem finset_string_max_len_mem
   (h1 : cs ∈ css) :
   cs.length ≤ finset_string_max_len css :=
   by
-  induction css using Finset.induction_on
-  case empty =>
-    simp only [Finset.notMem_empty] at h1
-  case insert hd tl ih_1 ih_2 =>
-    simp only [Finset.mem_insert] at h1
+    induction css using Finset.induction_on
+    case empty =>
+      simp only [Finset.notMem_empty] at h1
+    case insert hd tl ih_1 ih_2 =>
+      simp only [Finset.mem_insert] at h1
 
-    cases h1
-    case inl h1 =>
-      rewrite [h1]
-      unfold finset_string_max_len
-      simp only [Finset.fold_insert_idem, le_sup_left]
-    case inr h1 =>
-      simp only [finset_string_max_len] at ih_2
+      cases h1
+      case inl h1 =>
+        rewrite [h1]
+        unfold finset_string_max_len
+        simp only [Finset.fold_insert_idem, le_sup_left]
+      case inr h1 =>
+        simp only [finset_string_max_len] at ih_2
 
-      simp only [finset_string_max_len]
-      simp only [Finset.fold_insert_idem, le_sup_iff]
-      right
-      apply ih_2
-      exact h1
+        simp only [finset_string_max_len]
+        simp only [Finset.fold_insert_idem, le_sup_iff]
+        right
+        apply ih_2
+        exact h1
 
 
 /--
@@ -53,10 +53,11 @@ def fresh
   if h : cs ∈ css
   then
     have : (finset_string_max_len css) - cs.length < (finset_string_max_len css) + 1 - cs.length :=
-      by
-      obtain s1 := finset_string_max_len_mem cs css h
-      apply Nat.sub_lt_sub_right s1
-      apply lt_add_one
+    by
+      apply Nat.sub_lt_sub_right
+      · apply finset_string_max_len_mem
+        exact h
+      · apply lt_add_one
   fresh (cs ++ c.toString) c css
   else cs
   termination_by (finset_string_max_len css) + 1 - cs.length
@@ -69,11 +70,12 @@ theorem fresh_not_mem
   fresh cs c css ∉ css :=
   if h : cs ∈ css
   then
-  have : (finset_string_max_len css) - cs.length < (finset_string_max_len css) + 1 - cs.length :=
+    have : (finset_string_max_len css) - cs.length < (finset_string_max_len css) + 1 - cs.length :=
     by
-    obtain s1 := finset_string_max_len_mem cs css h
-    apply Nat.sub_lt_sub_right s1
-    apply lt_add_one
+      apply Nat.sub_lt_sub_right
+      · apply finset_string_max_len_mem
+        exact h
+      · apply lt_add_one
   by
     unfold fresh
     split
