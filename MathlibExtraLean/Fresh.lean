@@ -52,7 +52,7 @@ def fresh
   String :=
   if h : cs ∈ css
   then
-    have : finset_string_max_len css - String.length cs < finset_string_max_len css + 1 - String.length cs :=
+    have : (finset_string_max_len css) - cs.length < (finset_string_max_len css) + 1 - cs.length :=
       by
       obtain s1 := finset_string_max_len_mem cs css h
       apply Nat.sub_lt_sub_right s1
@@ -69,7 +69,7 @@ theorem fresh_not_mem
   fresh cs c css ∉ css :=
   if h : cs ∈ css
   then
-  have : finset_string_max_len css - String.length cs < finset_string_max_len css + 1 - String.length cs :=
+  have : (finset_string_max_len css) - cs.length < (finset_string_max_len css) + 1 - cs.length :=
     by
     obtain s1 := finset_string_max_len_mem cs css h
     apply Nat.sub_lt_sub_right s1
